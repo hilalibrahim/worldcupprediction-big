@@ -14,8 +14,10 @@ class Prediction {
     public function addPrediction($data) {
         $userId = (int)$data['user_id'];
         $matchId = (int)$data['match_id'];
-        $homeScore = (int)$data['home_score'];
-        $awayScore = (int)$data['away_score'];
+        $predictionType = $data['prediction_type'] ?? 'score';
+        $homeScore = (int)($data['home_score'] ?? 0);
+        $awayScore = (int)($data['away_score'] ?? 0);
+        $predictedWinner = $data['predicted_winner'] ?? null;
         
         // Check if prediction already exists
         $existing = $this->db->single(
@@ -38,25 +40,29 @@ class Prediction {
             return ['success' => false, 'message' => 'Predictions are locked for this match'];
         }
         
-        // Check if user already has prediction for this match
-        if ($existing) {
-            return ['success' => false, 'message' => 'You have already predicted this match'];
-        }
+        // Use direct SQL insert to avoid parameterized query issues
+        $predictedWinnerVal = ($predictionType === 'winner' && $predictedWinner) ? "'" . $predictedWinner . "'" : "NULL";
         
-        $predictionData = [
-            'user_id' => $userId,
-            'match_id' => $matchId,
-            'home_score' => $homeScore,
-            'away_score' => $awayScore,
-            'points' => 0,
-            'created_at' => date('Y-m-d H:i:s')
-        ];
+        $sql = "INSERT INTO predictions (user_id, match_id, home_score, away_score, points, created_at, prediction_type, predicted_winner) 
+                VALUES ($userId, $matchId, $homeScore, $awayScore, 0, NOW(), '$predictionType', $predictedWinnerVal)";
         
-        if ($this->db->insert($this->table, $predictionData)) {
+        try {
+            $this->db->query($sql);
             return ['success' => true, 'id' => $this->db->lastInsertId()];
+        } catch (Exception $e) {
+            // If prediction_type column doesn't exist, try without it
+            if (strpos($e->getMessage(), 'prediction_type') !== false) {
+                $sql = "INSERT INTO predictions (user_id, match_id, home_score, away_score, points, created_at) 
+                        VALUES ($userId, $matchId, $homeScore, $awayScore, 0, NOW())";
+                try {
+                    $this->db->query($sql);
+                    return ['success' => true, 'id' => $this->db->lastInsertId()];
+                } catch (Exception $e2) {
+                    return ['success' => false, 'message' => 'Failed to add prediction: ' . $e2->getMessage()];
+                }
+            }
+            return ['success' => false, 'message' => 'Failed to add prediction: ' . $e->getMessage()];
         }
-        
-        return ['success' => false, 'message' => 'Failed to add prediction'];
     }
     
     public function updatePrediction($data) {

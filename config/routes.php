@@ -1,6 +1,8 @@
 <?php
 /**
  * PredictCup Routes Configuration
- * Routes are defined in the Router class setupRoutes() method
+ * This file is included in index.php to setup routes
  */
 
+// Routes are now defined in Router.php setupRoutes() method
+// This file exists for compatibility but no longer contains route definitions

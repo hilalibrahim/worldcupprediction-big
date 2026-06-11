@@ -7,27 +7,27 @@ class RoomController {
     private $roomModel;
     private $predictionModel;
     private $userModel;
+    private $matchModel;
     
     public function __construct() {
         $this->roomModel = new Room();
         $this->predictionModel = new Prediction();
         $this->userModel = new User();
+        $this->matchModel = new MatchModel();
     }
     
     public function getAllRooms() {
         $allRooms = $this->roomModel->getAllRooms();
-        $todayMatches = $this->matchModel->getTodayMatches();
         
-        if (isLoggedIn()) {
-            $userId = getCurrentUserId();
-            $user = $this->userModel->getUserById($userId);
-            $stats = $this->userModel->getStats($userId);
-            $globalRank = $this->userModel->getGlobalRank($userId);
-            
-            include_once __DIR__ . '/../views/dashboard.php';
-        } else {
+        if (!isLoggedIn()) {
             include_once __DIR__ . '/../views/rooms/join.php';
+            return;
         }
+        
+        $userId = getCurrentUserId();
+        $userRooms = $this->roomModel->getUserRooms($userId);
+        
+        include_once __DIR__ . '/../views/rooms/list.php';
     }
     
     public function create() {
@@ -108,6 +108,18 @@ class RoomController {
         $members = $this->roomModel->getRoomMembers($id);
         $leaderboard = $this->roomModel->getRoomLeaderboard($id);
         $upcomingMatches = $this->matchModel->getUpcomingMatches(10);
+        
+        // Get current user's predictions for room matches
+        $userId = getCurrentUserId();
+        $roomPredictions = [];
+        if ($upcomingMatches) {
+            foreach ($upcomingMatches as $match) {
+                $pred = $this->predictionModel->getMatchPrediction($match['id'], $userId);
+                if ($pred) {
+                    $roomPredictions[$match['id']] = $pred;
+                }
+            }
+        }
         
         include_once __DIR__ . '/../views/rooms/view.php';
     }

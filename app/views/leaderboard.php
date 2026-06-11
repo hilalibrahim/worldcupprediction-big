@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="/" class="navbar-brand"><span>⚽</span> PredictCup</a>
+            <a href="/" class="navbar-brand"><img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;"><span>PredictCup</span></a>
             <div class="navbar-menu">
                 <a href="/">Home</a>
                 <a href="/worldcupprediction-big/dashboard">Dashboard</a>
@@ -26,11 +26,12 @@
         </div>
     </nav>
 
-    <div class="container" style="max-width: 1000px; padding: 2rem;">
-        <h2 style="color: var(--text-light); margin-bottom: 2rem; text-align: center;">
-            Global Leaderboard
-        </h2>
+    <div class="page-hero">
+        <h1>🏆 Global Leaderboard</h1>
+        <p style="color: var(--text-gray);">The world's top football predictors</p>
+    </div>
 
+    <div class="container" style="max-width: 1000px; padding: 1rem 1.5rem 3rem;">
         <!-- Filter Tabs -->
         <div class="tabs" style="justify-content: center; margin-bottom: 2rem;">
             <a href="/worldcupprediction-big/leaderboard?period=overall" class="tab <?php echo $period === 'overall' ? 'active' : '' ?>">

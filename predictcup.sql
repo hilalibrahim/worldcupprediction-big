@@ -35,6 +35,7 @@ CREATE TABLE admins (
 -- Teams table
 CREATE TABLE teams (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    api_team_id INT UNIQUE,
     name VARCHAR(100) NOT NULL,
     short_name VARCHAR(10) NOT NULL,
     country VARCHAR(50) NOT NULL,
@@ -43,12 +44,14 @@ CREATE TABLE teams (
     is_active TINYINT(1) DEFAULT 1,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     INDEX idx_name (name),
-    INDEX idx_country (country)
+    INDEX idx_country (country),
+    INDEX idx_api_team_id (api_team_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Matches table
 CREATE TABLE matches (
     id INT PRIMARY KEY AUTO_INCREMENT,
+    api_match_id INT UNIQUE,
     home_team_id INT NOT NULL,
     away_team_id INT NOT NULL,
     match_date DATETIME NOT NULL,
@@ -58,13 +61,15 @@ CREATE TABLE matches (
     home_score INT DEFAULT NULL,
     away_score INT DEFAULT NULL,
     is_locked TINYINT(1) DEFAULT 0,
+    last_api_sync DATETIME DEFAULT NULL,
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (home_team_id) REFERENCES teams(id) ON DELETE CASCADE,
     FOREIGN KEY (away_team_id) REFERENCES teams(id) ON DELETE CASCADE,
     INDEX idx_match_date (match_date),
     INDEX idx_status (status),
-    INDEX idx_home_away (home_team_id, away_team_id)
+    INDEX idx_home_away (home_team_id, away_team_id),
+    INDEX idx_api_match_id (api_match_id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Predictions table
@@ -221,7 +226,7 @@ CREATE TABLE user_activities (
 INSERT INTO users (username, email, password, country, is_admin, is_active, join_date) 
 VALUES ('admin', 'admin@predictcup.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Global', 1, 1, NOW());
 
--- Insert sample teams (World Cup 2022)
+-- Insert sample teams (World Cup 2026)
 INSERT INTO teams (name, short_name, country, group_letter) VALUES 
 ('Argentina', 'ARG', 'Argentina', 'A'),
 ('France', 'FRA', 'France', 'D'),
@@ -242,3 +247,6 @@ INSERT INTO achievements (name, description, badge_type, points_required) VALUES
 ('Prediction Master', 'Reach 500 total points', 'master', 500),
 ('Goal Guru', 'Correctly predict 50 exact scores', 'guru', 0),
 ('Champion Predictor', 'Predict the World Cup winner correctly', 'champion', 0);
+-- Add prediction_type column to predictions table
+ALTER TABLE predictions ADD COLUMN prediction_type ENUM('winner', 'score') DEFAULT 'score' AFTER away_score;
+ALTER TABLE predictions ADD COLUMN predicted_winner ENUM('home', 'draw', 'away') DEFAULT NULL AFTER prediction_type;

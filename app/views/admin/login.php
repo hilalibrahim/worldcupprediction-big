@@ -6,7 +6,7 @@
     <title>Admin Login - PredictCup</title>
     <link rel="stylesheet" href="/worldcupprediction-big/public/css/style.css">
 </head>
-<body style="background: #1e3a5f;">
+<body style="display: flex; align-items: center; justify-content: center; min-height: 100vh;">
     <div class="container" style="max-width: 400px; padding: 2rem;">
         <div style="text-align: center; margin-bottom: 2rem;">
             <h1 style="color: var(--text-light);">Admin Login</h1>

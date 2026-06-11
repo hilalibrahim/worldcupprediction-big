@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="/" class="navbar-brand"><span>⚽</span> PredictCup</a>
+            <a href="/" class="navbar-brand"><img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;"><span>PredictCup</span></a>
             <div class="navbar-menu">
                 <a href="/">Home</a>
                 <a href="/worldcupprediction-big/dashboard">Dashboard</a>
@@ -85,29 +85,98 @@
             </div>
 
             <div class="stat-card">
-                <h3>Upcoming Matches</h3>
+                <h3>Make Predictions</h3>
                 <?php if (!empty($upcomingMatches)): ?>
-                    <?php foreach ($upcomingMatches as $match): ?>
-                        <div class="match-card">
-                            <div class="match-team">
-                                <div class="team-logo" style="font-size: 1.25rem; background: var(--accent-color); color: var(--bg-dark);">
-                                    <?php echo htmlspecialchars($match['home_short_name'] ?? substr($match['home_team_name'], 0, 1)) ?>
-                                </div>
-                                <span><?php echo htmlspecialchars($match['home_team_name']) ?></span>
-                            </div>
-                            <div class="match-details">
+                    <?php foreach ($upcomingMatches as $match): 
+                        $matchPredictions = $roomPredictions[$match['id']] ?? [];
+                        $hasPredicted = !empty($matchPredictions);
+                        $isLocked = isMatchLocked($match['match_date']);
+                    ?>
+                        <div class="match-card" style="<?php echo $hasPredicted ? 'border-color: var(--success);' : '' ?>">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
                                 <div class="match-time"><?php echo formatMatchDate($match['match_date']) ?></div>
+                                <?php if ($hasPredicted): ?>
+                                    <span style="color: var(--success); font-size: 0.75rem;">✓ Predicted</span>
+                                <?php elseif ($isLocked): ?>
+                                    <span style="color: var(--text-gray); font-size: 0.75rem;">🔒 Locked</span>
+                                <?php else: ?>
+                                    <span style="color: var(--accent-color); font-size: 0.75rem;">Open</span>
+                                <?php endif; ?>
                             </div>
-                            <div class="match-team">
-                                <div class="team-logo" style="font-size: 1.25rem; background: var(--accent-color); color: var(--bg-dark);">
-                                    <?php echo htmlspecialchars($match['away_short_name'] ?? substr($match['away_team_name'], 0, 1)) ?>
+                            
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                <div style="text-align: center; flex: 1;">
+                                    <div class="team-logo" style="font-size: 1.5rem; background: var(--accent-color); color: var(--bg-dark); margin: 0 auto 0.5rem;">
+                                        <?php echo htmlspecialchars($match['home_short_name'] ?? substr($match['home_team_name'], 0, 1)) ?>
+                                    </div>
+                                    <div style="color: var(--text-light); font-size: 0.875rem;"><?php echo htmlspecialchars($match['home_team_name']) ?></div>
                                 </div>
-                                <span><?php echo htmlspecialchars($match['away_team_name']) ?></span>
+                                <div style="color: var(--text-gray); padding: 0 1rem;">VS</div>
+                                <div style="text-align: center; flex: 1;">
+                                    <div class="team-logo" style="font-size: 1.5rem; background: var(--accent-color); color: var(--bg-dark); margin: 0 auto 0.5rem;">
+                                        <?php echo htmlspecialchars($match['away_short_name'] ?? substr($match['away_team_name'], 0, 1)) ?>
+                                    </div>
+                                    <div style="color: var(--text-light); font-size: 0.875rem;"><?php echo htmlspecialchars($match['away_team_name']) ?></div>
+                                </div>
                             </div>
+                            
+                            <?php if ($hasPredicted): ?>
+                                <div style="text-align: center; padding: 0.5rem; background: var(--glass-bg); border-radius: 0.5rem;">
+                                    <span style="color: var(--text-light);">Your prediction: </span>
+                                    <strong style="color: var(--accent-color);"><?php echo $matchPredictions['home_score']; ?> - <?php echo $matchPredictions['away_score']; ?></strong>
+                                    <?php if ($match['status'] === 'completed'): ?>
+                                        <span style="color: var(--success); margin-left: 0.5rem;">(+<?php echo $matchPredictions['points']; ?> pts)</span>
+                                    <?php endif; ?>
+                                </div>
+                            <?php elseif (!$isLocked): ?>
+                                <form method="POST" action="/worldcupprediction-big/predict" style="display: flex; flex-direction: column; gap: 0.5rem; align-items: center;">
+                                    <input type="hidden" name="match_id" value="<?php echo $match['id'] ?>">
+                                    
+                                    <!-- Prediction Type Toggle -->
+                                    <div style="display: flex; gap: 1rem; font-size: 0.75rem;">
+                                        <label style="cursor: pointer;">
+                                            <input type="radio" name="prediction_type_<?php echo $match['id']; ?>" value="score" checked onchange="toggleRoomPrediction(<?php echo $match['id']; ?>)">
+                                            Score (10pts)
+                                        </label>
+                                        <label style="cursor: pointer;">
+                                            <input type="radio" name="prediction_type_<?php echo $match['id']; ?>" value="winner" onchange="toggleRoomPrediction(<?php echo $match['id']; ?>)">
+                                            Winner (5pts)
+                                        </label>
+                                    </div>
+                                    
+                                    <!-- Score inputs -->
+                                    <div id="score_<?php echo $match['id']; ?>" style="display: flex; gap: 0.5rem; align-items: center;">
+                                        <input type="number" name="home_score" class="form-input" style="width: 50px; text-align: center;" min="0" max="20" value="0">
+                                        <span style="color: var(--text-gray);">-</span>
+                                        <input type="number" name="away_score" class="form-input" style="width: 50px; text-align: center;" min="0" max="20" value="0">
+                                    </div>
+                                    
+                                    <!-- Winner inputs (hidden by default) -->
+                                    <div id="winner_<?php echo $match['id']; ?>" style="display: none; gap: 0.5rem; align-items: center; font-size: 0.75rem;">
+                                        <label style="cursor: pointer;">
+                                            <input type="radio" name="predicted_winner_<?php echo $match['id']; ?>" value="home" checked>
+                                            <?php echo htmlspecialchars(substr($match['home_team_name'], 0, 3)); ?>
+                                        </label>
+                                        <label style="cursor: pointer;">
+                                            <input type="radio" name="predicted_winner_<?php echo $match['id']; ?>" value="draw">Draw
+                                        </label>
+                                        <label style="cursor: pointer;">
+                                            <input type="radio" name="predicted_winner_<?php echo $match['id']; ?>" value="away">
+                                            <?php echo htmlspecialchars(substr($match['away_team_name'], 0, 3)); ?>
+                                        </label>
+                                    </div>
+                                    
+                                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.875rem;">Predict</button>
+                                </form>
+                            <?php else: ?>
+                                <div style="text-align: center; color: var(--text-gray); font-size: 0.875rem;">
+                                    Predictions closed
+                                </div>
+                            <?php endif; ?>
                         </div>
                     <?php endforeach; ?>
                 <?php else: ?>
-                    <p style="color: var(--text-gray);">No upcoming matches.</p>
+                    <p style="color: var(--text-gray);">No upcoming matches to predict.</p>
                 <?php endif; ?>
             </div>
 
@@ -140,3 +209,18 @@
     <script src="/worldcupprediction-big/public/js/main.js"></script>
 </body>
 </html>
+<script>
+        function toggleRoomPrediction(matchId) {
+            const predType = document.querySelector('input[name="prediction_type_' + matchId + '"]:checked').value;
+            const scoreDiv = document.getElementById('score_' + matchId);
+            const winnerDiv = document.getElementById('winner_' + matchId);
+            
+            if (predType === 'score') {
+                scoreDiv.style.display = 'flex';
+                winnerDiv.style.display = 'none';
+            } else {
+                scoreDiv.style.display = 'none';
+                winnerDiv.style.display = 'flex';
+            }
+        }
+    </script>

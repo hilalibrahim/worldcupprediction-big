@@ -11,10 +11,11 @@
     <nav class="navbar">
         <div class="container">
             <a href="/" class="navbar-brand">
-                <span>⚽</span> PredictCup
+                <img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;">
+                <span>PredictCup</span>
             </a>
             <div class="navbar-menu">
-                <a href="/" class="active">Home</a>
+                <a href="/worldcupprediction-big" class="active">Home</a>
                 <a href="/worldcupprediction-big/dashboard">Dashboard</a>
                 <a href="/worldcupprediction-big/daily-matches">Matches</a>
                 <a href="/worldcupprediction-big/leaderboard">Leaderboard</a>

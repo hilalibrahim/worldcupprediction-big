@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="/" class="navbar-brand"><span>⚽</span> PredictCup</a>
+            <a href="/" class="navbar-brand"><img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;"><span>PredictCup</span></a>
             <div class="navbar-menu">
                 <a href="/">Home</a>
                 <a href="/worldcupprediction-big/admin/dashboard">Admin Dashboard</a>
@@ -17,6 +17,7 @@
                 <a href="/worldcupprediction-big/admin/teams">Teams</a>
                 <a href="/worldcupprediction-big/admin/matches">Matches</a>
                 <a href="/worldcupprediction-big/admin/rooms">Rooms</a>
+                <a href="/worldcupprediction-big/admin/api">API</a>
                 <a href="/worldcupprediction-big/admin/logout">Logout</a>
             </div>
         </div>

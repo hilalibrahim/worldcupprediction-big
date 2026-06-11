@@ -1,34 +1,29 @@
-# PredictCup - Apache Configuration
+# PredictCup - Apache Configuration for XAMPP
 
 # Enable mod_rewrite
 <IfModule mod_rewrite.c>
     Options -Indexes
+    Options +FollowSymLinks
     
     RewriteEngine On
+    
+    # For XAMPP, RewriteBase should match the directory path
+    # If project is in htdocs/worldcupprediction-big, use:
     RewriteBase /worldcupprediction-big/
     
-    # Force HTTPS
-    RewriteCond %{HTTPS} off
-    RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+    # If RewriteBase doesn't work, try without it:
+    # RewriteBase /
     
-    # Main rewrite rules
+    # Main rewrite rules - handle root path and pages
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteCond %{REQUEST_FILENAME} !-d
-    RewriteRule ^([^/]+)/?$ index.php?page=$1 [L,QSA]
-    RewriteRule ^([^/]+)/([^/]+)/?$ index.php?page=$1&action=$2 [L,QSA]
-    RewriteRule ^([^/]+)/([^/]+)/([^/]+)/?$ index.php?page=$1&action=$2&id=$3 [L,QSA]
-    
-    # API routes
-    RewriteRule ^api/([^/]+)/?$ api.php?action=$1 [L,QSA]
-    RewriteRule ^api/([^/]+)/([^/]+)/?$ api.php?action=$1&id=$2 [L,QSA]
+    RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
 
 # Security Headers
 <IfModule mod_headers.c>
     Header set X-Content-Type-Options "nosniff"
     Header set X-Frame-Options "SAMEORIGIN"
-    Header set X-XSS-Protection "1; mode=block"
-    Header always set Referrer-Policy "strict-origin-when-cross-origin"
 </IfModule>
 
 # Protect sensitive files
@@ -37,25 +32,6 @@
     Deny from all
 </FilesMatch>
 
-# PHP settings
+# PHP settings - error reporting for development
 php_flag display_errors On
 php_value error_reporting E_ALL
-
-# Upload limits
-php_value upload_max_filesize 10M
-php_value post_max_size 10M
-php_value max_execution_time 300
-php_value max_input_time 300
-
-# Session settings
-php_value session.gc_maxlifetime 604800
-php_value session.cookie_httponly 1
-
-# Cache static files
-<IfModule mod_expires.c>
-    ExpiresActive On
-    ExpiresByType text/css "access plus 1 week"
-    ExpiresByType application/javascript "access plus 1 week"
-    ExpiresByType image/* "access plus 1 month"
-    ExpiresByType font/* "access plus 1 month"
-</IfModule>

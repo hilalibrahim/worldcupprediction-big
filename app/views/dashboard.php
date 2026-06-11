@@ -9,9 +9,9 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="/" class="navbar-brand"><span>⚽</span> PredictCup</a>
+            <a href="/" class="navbar-brand"><img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;"><span>PredictCup</span></a>
             <div class="navbar-menu">
-                <a href="/">Home</a>
+                <a href="/worldcupprediction-big">Home</a>
                 <a href="/worldcupprediction-big/dashboard" class="active">Dashboard</a>
                 <a href="/worldcupprediction-big/daily-matches">Matches</a>
                 <a href="/worldcupprediction-big/leaderboard">Leaderboard</a>
@@ -21,7 +21,7 @@
             </div>
             <div class="user-menu">
                 <span>Welcome, <strong><?php echo htmlspecialchars($_SESSION['username'] ?? '') ?></strong></span>
-                <img src="/worldcupprediction-big/public/images/avatars/user.png" class="avatar" alt="Avatar">
+                <img src="https://ui-avatars.com/api/?name=<?php echo urlencode($_SESSION['username'] ?? 'Player') ?>&background=ffd230&color=000000&bold=true" class="avatar" alt="Avatar">
             </div>
         </div>
     </nav>
@@ -36,7 +36,7 @@
             </div>
             <div class="stat-card">
                 <h3>Global Rank</h3>
-                <div class="stat-value" style="color: var(--accent-color);">#{php echo $globalRank ?></div>
+                <div class="stat-value" style="color: var(--accent-color);">#<?php echo $globalRank ?></div>
                 <div class="stat-label">Rank among all users</div>
             </div>
             <div class="stat-card">

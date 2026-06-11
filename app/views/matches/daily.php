@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="/" class="navbar-brand"><span>⚽</span> PredictCup</a>
+            <a href="/" class="navbar-brand"><img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;"><span>PredictCup</span></a>
             <div class="navbar-menu">
                 <a href="/">Home</a>
                 <a href="/worldcupprediction-big/dashboard">Dashboard</a>
@@ -26,11 +26,12 @@
         </div>
     </nav>
 
-    <div class="container" style="max-width: 1000px; padding: 2rem;">
-        <h2 style="color: var(--text-light); margin-bottom: 2rem; text-align: center;">
-            Today's Matches
-        </h2>
+    <div class="page-hero">
+        <h1>⚽ Today's Matches</h1>
+        <p style="color: var(--text-gray);">Make your predictions before kickoff and climb the leaderboard</p>
+    </div>
 
+    <div class="container" style="max-width: 1000px; padding: 1rem 1.5rem 3rem;">
         <?php if (!empty($todayMatches)): ?>
             <?php foreach ($todayMatches as $match): ?>
                 <div class="match-card">
@@ -94,5 +95,8 @@
     </div>
 
     <script src="/worldcupprediction-big/public/js/main.js"></script>
+    <script>
+        // Initialize any daily match specific functionality
+    </script>
 </body>
 </html>

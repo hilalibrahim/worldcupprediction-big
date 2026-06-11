@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar">
         <div class="container">
-            <a href="/" class="navbar-brand"><span>⚽</span> PredictCup</a>
+            <a href="/" class="navbar-brand"><img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;"><span>PredictCup</span></a>
             <div class="navbar-menu">
                 <a href="/">Home</a>
                 <a href="/worldcupprediction-big/dashboard">Dashboard</a>
@@ -72,23 +72,34 @@
             <?php if (isLoggedIn() && $match['status'] !== 'completed'): ?>
                 <div class="match-actions" style="margin-top: 2rem;">
                     <form method="POST" action="/worldcupprediction-big/predict" id="predictForm">
-                        <input type="hidden" name="csrf_token" value="<?php echo generateCsrfToken() ?>">
                         <input type="hidden" name="match_id" value="<?php echo $match['id'] ?>">
+                        <input type="hidden" name="prediction_type" value="score">
                         
                         <div style="display: flex; align-items: center; gap: 1rem; justify-content: center; margin-bottom: 1rem;">
-                            <input type="number" name="home_score" class="score-input" min="0" max="99" value="0" required>
-                            <span style="color: var(--text-light);">-</span>
-                            <input type="number" name="away_score" class="score-input" min="0" max="99" value="0" required>
+                            <div>
+                                <label style="color: var(--text-light); display: block; margin-bottom: 0.5rem;"><?php echo htmlspecialchars($match['home_team_name']) ?></label>
+                                <input type="number" name="home_score" class="score-input" min="0" max="20" value="0" required>
+                            </div>
+                            <span style="color: var(--text-light); font-size: 1.5rem;">-</span>
+                            <div>
+                                <label style="color: var(--text-light); display: block; margin-bottom: 0.5rem;"><?php echo htmlspecialchars($match['away_team_name']) ?></label>
+                                <input type="number" name="away_score" class="score-input" min="0" max="20" value="0" required>
+                            </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Submit Prediction</button>
+                        <button type="submit" class="btn btn-primary">Predict Score (10 pts)</button>
                     </form>
                 </div>
 
                 <?php if ($myPrediction): ?>
                     <div style="text-align: center; margin-top: 1rem; padding: 1rem; background: rgba(16, 185, 129, 0.2); border-radius: 0.5rem;">
                         <span style="color: var(--success);">✓</span>
-                        Your prediction: <?php echo $myPrediction['home_score'] ?> - <?php echo $myPrediction['away_score'] ?>
+                        Your prediction: 
+                        <?php if ($myPrediction['prediction_type'] === 'winner'): ?>
+                            <?php echo ucfirst($myPrediction['predicted_winner']); ?> (<?php echo $myPrediction['home_score']; ?>-<?php echo $myPrediction['away_score']; ?>)
+                        <?php else: ?>
+                            <?php echo $myPrediction['home_score']; ?> - <?php echo $myPrediction['away_score']; ?>
+                        <?php endif; ?>
                     </div>
                 <?php endif; ?>
             <?php endif; ?>
@@ -122,6 +133,27 @@
         <?php endif; ?>
     </div>
 
+    <script>
+        function togglePredictionType() {
+            const predType = document.querySelector('input[name="prediction_type"]:checked').value;
+            const scorePred = document.getElementById('scorePrediction');
+            const winnerPred = document.getElementById('winnerPrediction');
+            
+            if (predType === 'score') {
+                scorePred.style.display = 'flex';
+                winnerPred.style.display = 'none';
+                // Make score inputs required for score prediction
+                document.querySelectorAll('#scorePrediction input').forEach(input => input.required = true);
+                document.querySelectorAll('#winnerPrediction input').forEach(input => input.required = false);
+            } else {
+                scorePred.style.display = 'none';
+                winnerPred.style.display = 'flex';
+                // Make score inputs not required for winner prediction
+                document.querySelectorAll('#scorePrediction input').forEach(input => input.required = false);
+                document.querySelectorAll('#winnerPrediction input').forEach(input => input.required = false);
+            }
+        }
+    </script>
     <script src="/worldcupprediction-big/public/js/main.js"></script>
 </body>
 </html>

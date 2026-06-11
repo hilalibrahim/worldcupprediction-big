@@ -7,8 +7,6 @@
  * @version 1.0.0
  */
 
-session_start();
-
 // Load configuration
 require_once __DIR__ . '/config/config.php';
 
@@ -30,9 +28,6 @@ require_once __DIR__ . '/app/models/Notification.php';
 // Load controllers
 require_once __DIR__ . '/app/controllers/Router.php';
 
-// Load routes
-require_once __DIR__ . '/config/routes.php';
-
-// Run router
+// Initialize router and run
 $router = new Router();
 $router->run();

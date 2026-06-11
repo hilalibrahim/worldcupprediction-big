@@ -11,7 +11,7 @@ class MainController {
     private $achievementModel;
     
     public function __construct() {
-        $this->matchModel = new Match();
+        $this->matchModel = new MatchModel();
         $this->predictionModel = new Prediction();
         $this->userModel = new User();
         $this->roomModel = new Room();
@@ -39,7 +39,7 @@ class MainController {
         $todayMatches = $this->matchModel->getTodayMatches();
         $upcomingMatches = $this->matchModel->getUpcomingMatches(10);
         $topPredictors = $this->userModel->getTopPredictors(5);
-        $userRooms = $this->roomModel->getAllRooms();
+        $userRooms = $this->roomModel->getUserRooms($userId);
         
         $this->achievementModel->checkAchievements($userId);
         
@@ -87,14 +87,36 @@ class MainController {
         }
         
         if (isPostRequest()) {
+            $matchId = (int)$_POST['match_id'];
+            
+            // Debug: log the POST data
+            error_log("Prediction POST: " . print_r($_POST, true));
+            
+            // Check if this is a room prediction (uses dynamic field names with match ID)
+            if (isset($_POST['prediction_type_' . $matchId])) {
+                $predictionType = sanitize($_POST['prediction_type_' . $matchId]);
+                $predictedWinner = sanitize($_POST['predicted_winner_' . $matchId] ?? 'draw');
+            } else {
+                $predictionType = sanitize($_POST['prediction_type'] ?? 'score');
+                $predictedWinner = sanitize($_POST['predicted_winner'] ?? 'draw');
+            }
+            
+            error_log("Prediction Type: $predictionType, Winner: $predictedWinner");
+            
             $data = [
                 'user_id' => getCurrentUserId(),
-                'match_id' => (int)$_POST['match_id'],
-                'home_score' => (int)$_POST['home_score'],
-                'away_score' => (int)$_POST['away_score']
+                'match_id' => $matchId,
+                'prediction_type' => $predictionType,
+                'home_score' => (int)($_POST['home_score'] ?? 0),
+                'away_score' => (int)($_POST['away_score'] ?? 0),
+                'predicted_winner' => $predictionType === 'winner' ? $predictedWinner : null
             ];
             
+            error_log("Prediction Data: " . print_r($data, true));
+            
             $result = $this->predictionModel->addPrediction($data);
+            
+            error_log("Prediction Result: " . print_r($result, true));
             
             if ($result['success']) {
                 setFlashMessage('success', 'Prediction saved successfully!');

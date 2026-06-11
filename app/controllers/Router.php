@@ -12,26 +12,20 @@ class Router {
     }
     
     private function setupRoutes() {
-        // Home
         $this->addRoute('', 'MainController', 'index');
-        
-        // Authentication
+        $this->addRoute('/', 'MainController', 'index'); // Also match slash
         $this->addRoute('register', 'AuthController', 'register');
         $this->addRoute('login', 'AuthController', 'login');
         $this->addRoute('logout', 'AuthController', 'logout');
         $this->addRoute('forgot-password', 'AuthController', 'forgotPassword');
         $this->addRoute('reset-password/([a-zA-Z0-9]+)', 'AuthController', 'resetPassword', ['token' => 1]);
         $this->addRoute('profile', 'AuthController', 'profile');
-        
-        // Main pages
         $this->addRoute('dashboard', 'MainController', 'dashboard');
         $this->addRoute('daily-matches', 'MainController', 'dailyMatches');
         $this->addRoute('match/([0-9]+)', 'MainController', 'matchDetail', ['id' => 1]);
         $this->addRoute('predict', 'MainController', 'predict');
         $this->addRoute('leaderboard', 'MainController', 'leaderboard');
         $this->addRoute('about', 'MainController', 'about');
-        
-        // Rooms
         $this->addRoute('rooms', 'RoomController', 'getAllRooms');
         $this->addRoute('rooms/create', 'RoomController', 'create');
         $this->addRoute('rooms/join', 'RoomController', 'join');
@@ -40,8 +34,6 @@ class Router {
         $this->addRoute('rooms/delete/([0-9]+)', 'RoomController', 'delete', ['id' => 1]);
         $this->addRoute('rooms/members/([0-9]+)', 'RoomController', 'members', ['id' => 1]);
         $this->addRoute('rooms/leave/([0-9]+)', 'RoomController', 'leave', ['id' => 1]);
-        
-        // Admin
         $this->addRoute('admin/login', 'AdminController', 'login');
         $this->addRoute('admin/logout', 'AdminController', 'logout');
         $this->addRoute('admin/dashboard', 'AdminController', 'dashboard');
@@ -49,8 +41,7 @@ class Router {
         $this->addRoute('admin/matches', 'AdminController', 'matches');
         $this->addRoute('admin/users', 'AdminController', 'users');
         $this->addRoute('admin/rooms', 'AdminController', 'rooms');
-        
-        // API
+        $this->addRoute('admin/api', 'AdminController', 'api');
         $this->addRoute('api/([a-zA-Z0-9_-]+)', 'ApiController', 'handleRequest', ['action' => 1]);
     }
     
@@ -65,7 +56,9 @@ class Router {
     
     public function run() {
         $uri = $_SERVER['REQUEST_URI'];
-        $uri = parse_url($uri, PHP_URL_PATH);
+        $parsed_uri = parse_url($uri, PHP_URL_PATH);
+        
+        $uri = $parsed_uri;
         $uri = str_replace('/worldcupprediction-big', '', $uri);
         $uri = trim($uri, '/');
         
@@ -74,14 +67,14 @@ class Router {
         }
         
         foreach ($this->routes as $route) {
-            $pattern = '/^' . $route['pattern'] . '$/';
+            // Use # as regex delimiter since route patterns may contain /
+            $pattern = '#^' . $route['pattern'] . '$#i';
             
             if (preg_match($pattern, $uri, $matches)) {
                 $params = [];
                 foreach ($route['params'] as $key => $index) {
                     $params[$key] = $matches[$index];
                 }
-                
                 $this->executeRoute($route['controller'], $route['method'], $params);
                 return;
             }
@@ -91,7 +84,7 @@ class Router {
     }
     
     private function executeRoute($controller, $method, $params) {
-        $controllerFile = __DIR__ . "/controllers/{$controller}.php";
+        $controllerFile = __DIR__ . "/{$controller}.php";
         
         if (!file_exists($controllerFile)) {
             $this->show404();
@@ -112,8 +105,21 @@ class Router {
     
     private function show404() {
         http_response_code(404);
+        echo "<div style='max-width: 800px; margin: 50px auto; padding: 20px; border: 2px solid #f00; background: #fff;'>";
         echo "<h1>404 - Page Not Found</h1>";
         echo "<p>The page you requested does not exist.</p>";
+        $uri = $_SERVER['REQUEST_URI'];
+        $parsed_uri = parse_url($uri, PHP_URL_PATH);
+        echo "<div style='background: #ffe6e6; padding: 10px; margin: 10px 0;'>";
+        echo "<strong>Debug Info:</strong><br>";
+        echo "Original URI: $uri<br>";
+        echo "Parsed URI: $parsed_uri<br>";
+        echo "BASE_URL: " . BASE_URL . "<br>";
+        echo "PHP_SELF: " . $_SERVER['PHP_SELF'] . "<br>";
+        echo "SCRIPT_NAME: " . ($_SERVER['SCRIPT_NAME'] ?? 'N/A') . "<br>";
+        echo "DOCUMENT_ROOT: " . ($_SERVER['DOCUMENT_ROOT'] ?? 'N/A') . "<br>";
+        echo "</div>";
         echo "<a href='" . BASE_URL . "'>Return Home</a>";
+        echo "</div>";
     }
 }

@@ -35,9 +35,8 @@ date_default_timezone_set(DEFAULT_TIMEZONE);
 define('ITEMS_PER_PAGE', 20);
 
 // Points system
-define('POINTS_EXACT_SCORE', 5);
-define('POINTS_CORRECT_WINNER', 3);
-define('POINTS_CORRECT_DIFFERENCE', 2);
+define('POINTS_EXACT_SCORE', 10);  // Both winner and exact score correct
+define('POINTS_CORRECT_WINNER', 5); // Only winner correct (not exact score)
 define('POINTS_BONUS_STREAK', 2);
 define('MAX_POINTS_PER_MATCH', 10);
 
@@ -54,13 +53,20 @@ define('MAIL_METHOD', 'mail');
 define('ADMIN_EMAIL', 'admin@predictcup.com');
 define('ADMIN_NAME', 'PredictCup Admin');
 
+// Football-Data.org API configuration
+define('FOOTBALL_DATA_API_KEY', '4f91ce6ce13140c8be3751563c26a9c4'); // Add your API key here
+define('FOOTBALL_DATA_API_URL', 'https://api.football-data.org/v4/');
+define('FOOTBALL_DATA_COMPETITION', 'WC'); // World Cup competition code
+define('FOOTBALL_DATA_UPDATE_INTERVAL', 3600); // Update matches every hour
+
 // Environment (development/production)
 if (!defined('ENV')) {
     define('ENV', 'development');
 }
 
 // Magic quotes compatibility for older PHP versions (removed in PHP 8.0)
-if (function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
+// Note: get_magic_quotes_gpc() was removed in PHP 8.0, so we handle it conditionally
+if (version_compare(PHP_VERSION, '8.0.0', '<') && function_exists('get_magic_quotes_gpc') && get_magic_quotes_gpc()) {
     function stripslashes_deep($value) {
         return is_array($value) ? array_map('stripslashes_deep', $value) : stripslashes($value);
     }

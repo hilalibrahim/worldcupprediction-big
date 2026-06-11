@@ -32,22 +32,6 @@
                        placeholder="Enter your email">
             </div>
 
-            <div class="form-group">
-                <label class="form-label">Country</label>
-                <select name="country" class="form-input">
-                    <option value="Global">Global</option>
-                    <option value="Argentina">Argentina</option>
-                    <option value="France">France</option>
-                    <option value="Brazil">Brazil</option>
-                    <option value="Germany">Germany</option>
-                    <option value="Spain">Spain</option>
-                    <option value="Portugal">Portugal</option>
-                    <option value="England">England</option>
-                    <option value="Belgium">Belgium</option>
-                    <option value="Netherlands">Netherlands</option>
-                    <option value="Italy">Italy</option>
-                </select>
-            </div>
 
             <div class="form-group">
                 <label class="form-label">Password</label>

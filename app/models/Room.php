@@ -23,6 +23,18 @@ class Room {
         ");
     }
     
+    public function getUserRooms($userId) {
+        return $this->db->resultSet("
+            SELECT r.*, u.username as owner_name, u.country as owner_country,
+                   (SELECT COUNT(*) FROM room_members WHERE room_id = r.id) as member_count
+            FROM {$this->table} r
+            JOIN users u ON r.owner_id = u.id
+            JOIN room_members rm ON r.id = rm.room_id
+            WHERE rm.user_id = ?
+            ORDER BY r.created_at DESC
+        ", [(int)$userId]);
+    }
+    
     public function getRoomById($id) {
         return $this->db->single("
             SELECT r.*, u.username as owner_name, u.country as owner_country

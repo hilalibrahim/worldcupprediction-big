@@ -83,30 +83,35 @@ function formatMatchDate($date) {
 function calculatePoints($prediction, $actual) {
     $points = 0;
     
+    $predType = $prediction['prediction_type'] ?? 'score';
     $predHome = (int)$prediction['home_score'];
     $predAway = (int)$prediction['away_score'];
     $actHome = (int)$actual['home_score'];
     $actAway = (int)$actual['away_score'];
     
-    // Exact score: 5 points
+    // If prediction is winner-only type
+    if ($predType === 'winner') {
+        $predictedWinner = $prediction['predicted_winner'] ?? getWinner($predHome, $predAway);
+        $actualWinner = getWinner($actHome, $actAway);
+        
+        if ($predictedWinner === $actualWinner) {
+            return POINTS_CORRECT_WINNER; // 5 points for correct winner
+        }
+        return 0;
+    }
+    
+    // Score prediction type
+    // Exact score: 10 points
     if ($predHome === $actHome && $predAway === $actAway) {
         return POINTS_EXACT_SCORE;
     }
     
-    // Correct winner: 3 points
+    // Correct winner only: 5 points
     $predWinner = getWinner($predHome, $predAway);
-    $actWinner = getWinner($actHome, $actAway);
+    $actualWinner = getWinner($actHome, $actAway);
     
-    if ($predWinner === $actWinner) {
+    if ($predWinner === $actualWinner) {
         $points += POINTS_CORRECT_WINNER;
-    }
-    
-    // Correct goal difference: 2 points
-    $predDiff = $predHome - $predAway;
-    $actDiff = $actHome - $actAway;
-    
-    if ($predDiff === $actDiff) {
-        $points += POINTS_CORRECT_DIFFERENCE;
     }
     
     // Cap at max points

@@ -10,7 +10,7 @@ class ApiController {
     private $userModel;
     
     public function __construct() {
-        $this->matchModel = new Match();
+        $this->matchModel = new MatchModel();
         $this->predictionModel = new Prediction();
         $this->roomModel = new Room();
         $this->userModel = new User();
