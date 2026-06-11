@@ -21,6 +21,7 @@ class Router {
         $this->addRoute('reset-password/([a-zA-Z0-9]+)', 'AuthController', 'resetPassword', ['token' => 1]);
         $this->addRoute('profile', 'AuthController', 'profile');
         $this->addRoute('dashboard', 'MainController', 'dashboard');
+        $this->addRoute('predictions', 'MainController', 'predictions');
         $this->addRoute('daily-matches', 'MainController', 'dailyMatches');
         $this->addRoute('match/([0-9]+)', 'MainController', 'matchDetail', ['id' => 1]);
         $this->addRoute('predict', 'MainController', 'predict');

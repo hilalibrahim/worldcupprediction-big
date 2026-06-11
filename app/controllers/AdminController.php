@@ -136,6 +136,7 @@ class AdminController {
                 $result = $this->matchModel->deleteMatch((int)$_POST['id']);
                 setFlashMessage($result['success'] ? 'success' : 'error', $result['success'] ? 'Match deleted successfully' : $result['message']);
             } elseif ($action === 'enter_results') {
+                // Note: predicted_winner is auto-calculated from scores, so we ignore it here
                 $result = $this->matchModel->enterResults(
                     (int)$_POST['match_id'],
                     (int)$_POST['home_score'],

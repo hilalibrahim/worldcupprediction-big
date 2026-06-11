@@ -131,6 +131,8 @@
                             <div style="display: flex; gap: 0.5rem;">
                                 <?php if ($match['status'] !== 'completed'): ?>
                                     <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem;" onclick="toggleResultsForm(<?php echo $match['id'] ?>)">Results</button>
+                                <?php else: ?>
+                                    <button class="btn btn-secondary" style="padding: 0.25rem 0.75rem;" onclick="toggleResultsForm(<?php echo $match['id'] ?>)">Edit</button>
                                 <?php endif; ?>
                                 <form method="POST" action="/worldcupprediction-big/admin/matches" style="display: inline;">
                                     <input type="hidden" name="action" value="delete">
@@ -147,13 +149,39 @@
                             <form method="POST" action="/worldcupprediction-big/admin/matches">
                                 <input type="hidden" name="action" value="enter_results">
                                 <input type="hidden" name="match_id" value="<?php echo $match['id'] ?>">
-                                <div style="display: flex; align-items: center; gap: 1rem;">
-                                    <span><?php echo htmlspecialchars($match['home_team_name']) ?></span>
-                                    <input type="number" name="home_score" class="form-input" style="width: 80px;" min="0" max="99">
-                                    <span>-</span>
-                                    <input type="number" name="away_score" class="form-input" style="width: 80px;" min="0" max="99">
-                                    <span><?php echo htmlspecialchars($match['away_team_name']) ?></span>
-                                    <button type="submit" class="btn btn-primary">Save Results</button>
+                                <div style="display: flex; align-items: flex-end; gap: 1.5rem; flex-wrap: wrap; padding: 1rem 0;">
+                                    <!-- Home Team Score Input -->
+                                    <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                        <label style="color: var(--text-gray); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            <?php echo htmlspecialchars($match['home_team_name']) ?> (Home)
+                                        </label>
+                                        <input type="number" name="home_score" class="form-input" style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: 700;" min="0" max="99" placeholder="0" value="<?php echo $match['home_score'] ?? ''; ?>" required>
+                                    </div>
+
+                                    <span style="color: var(--text-gray); font-size: 1.5rem; font-weight: 700; padding-bottom: 0.5rem;">-</span>
+
+                                    <!-- Away Team Score Input -->
+                                    <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                        <label style="color: var(--text-gray); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            <?php echo htmlspecialchars($match['away_team_name']) ?> (Away)
+                                        </label>
+                                        <input type="number" name="away_score" class="form-input" style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: 700;" min="0" max="99" placeholder="0" value="<?php echo $match['away_score'] ?? ''; ?>" required>
+                                    </div>
+
+                                    <!-- Winner Selection -->
+                                    <div style="display: flex; flex-direction: column; gap: 0.35rem;">
+                                        <label style="color: var(--text-gray); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px;">
+                                            Winner
+                                        </label>
+                                        <select name="predicted_winner" class="form-input" style="padding: 0.5rem; border-radius: 0.375rem; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border); color: var(--text-light);">
+                                            <option value="home" <?php echo ($match['predicted_winner'] ?? '') === 'home' ? 'selected' : ''; ?>>Home</option>
+                                            <option value="away" <?php echo ($match['predicted_winner'] ?? '') === 'away' ? 'selected' : ''; ?>>Away</option>
+                                            <option value="draw" <?php echo ($match['predicted_winner'] ?? '') === 'draw' ? 'selected' : ''; ?>>Draw</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-primary" style="margin-left: 1rem;">Save Results</button>
+                                    <button type="button" class="btn btn-secondary" style="margin-left: 0.5rem;" onclick="toggleResultsForm(<?php echo $match['id'] ?>)">Cancel</button>
                                 </div>
                             </form>
                         </td>

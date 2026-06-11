@@ -102,34 +102,62 @@
     <!-- Stats Section -->
  <section class="stats">
     <div class="stats-header">
-        <h2>Prediction Platform Statistics</h2>
-        <p>Join thousands of football fans predicting the biggest tournament in the world.</p>
+        <h2>Platform Statistics</h2>
+        <p>Join the fun of predicting the biggest tournament in the world.</p>
     </div>
 
     <div class="stats-grid">
 
         <div class="stat-item">
-            <div class="stat-icon">👥</div>
-            <div class="stat-number" id="totalUsers">0</div>
-            <div class="stat-label">Total Users</div>
+            <div class="stat-icon-bg">
+                <span class="stat-icon">👥</span>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number" id="totalUsers">
+                    <span class="stat-loader">⏳</span>
+                </div>
+                <div class="stat-label">Active Predictors</div>
+                <div class="stat-description">Players worldwide</div>
+            </div>
         </div>
 
         <div class="stat-item">
-            <div class="stat-icon">🏆</div>
-            <div class="stat-number" id="totalRooms">0</div>
-            <div class="stat-label">Active Rooms</div>
+            <div class="stat-icon-bg" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+                <span class="stat-icon">🏆</span>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number" id="totalRooms">
+                    <span class="stat-loader">⏳</span>
+                </div>
+                <div class="stat-label">Prediction Rooms</div>
+                <div class="stat-description">Active competitions</div>
+            </div>
         </div>
 
         <div class="stat-item">
-            <div class="stat-icon">⚽</div>
-            <div class="stat-number" id="totalPredictions">0</div>
-            <div class="stat-label">Predictions Made</div>
+            <div class="stat-icon-bg" style="background: linear-gradient(135deg, #ef4444, #dc2626);">
+                <span class="stat-icon">⚽</span>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number" id="totalPredictions">
+                    <span class="stat-loader">⏳</span>
+                </div>
+                <div class="stat-label">Predictions Made</div>
+                <div class="stat-description">Total guesses</div>
+            </div>
         </div>
 
         <div class="stat-item">
-            <div class="stat-icon">📅</div>
-            <div class="stat-number" id="matchesPlayed">0</div>
-            <div class="stat-label">Matches Played</div>
+            <div class="stat-icon-bg" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed);">
+                <span class="stat-icon">📅</span>
+            </div>
+            <div class="stat-content">
+                <div class="stat-number" id="matchesPlayed">
+                    <span class="stat-loader">⏳</span>
+                </div>
+                <div class="stat-label">Matches Completed</div>
+                <div class="stat-description">Results entered</div>
+            </div>
         </div>
 
     </div>
@@ -222,15 +250,52 @@
 
     <script src="/worldcupprediction-big/public/js/main.js"></script>
     <script>
+        // Animate number counting
+        function animateCounter(element, target) {
+            const duration = 2000; // 2 seconds
+            const increment = target / (duration / 16);
+            let current = 0;
+
+            const counter = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    element.textContent = target.toLocaleString();
+                    clearInterval(counter);
+                } else {
+                    element.textContent = Math.floor(current).toLocaleString();
+                }
+            }, 16);
+        }
+
         document.addEventListener('DOMContentLoaded', function() {
             // Load stats from API
             fetch('/worldcupprediction-big/api/stats')
                 .then(res => res.json())
                 .then(data => {
-                    document.getElementById('totalUsers').textContent = data.total_users;
-                    document.getElementById('totalRooms').textContent = data.total_rooms;
-                    document.getElementById('totalPredictions').textContent = data.total_predictions;
-                    document.getElementById('matchesPlayed').textContent = data.matches_played;
+                    // Animate each stat with a delay
+                    setTimeout(() => {
+                        animateCounter(document.getElementById('totalUsers'), parseInt(data.total_users) || 0);
+                    }, 200);
+                    
+                    setTimeout(() => {
+                        animateCounter(document.getElementById('totalRooms'), parseInt(data.total_rooms) || 0);
+                    }, 400);
+                    
+                    setTimeout(() => {
+                        animateCounter(document.getElementById('totalPredictions'), parseInt(data.total_predictions) || 0);
+                    }, 600);
+                    
+                    setTimeout(() => {
+                        animateCounter(document.getElementById('matchesPlayed'), parseInt(data.matches_played) || 0);
+                    }, 800);
+                })
+                .catch(err => {
+                    console.error('Failed to load stats:', err);
+                    // Set default values on error
+                    document.getElementById('totalUsers').textContent = '0';
+                    document.getElementById('totalRooms').textContent = '0';
+                    document.getElementById('totalPredictions').textContent = '0';
+                    document.getElementById('matchesPlayed').textContent = '0';
                 });
         });
     </script>

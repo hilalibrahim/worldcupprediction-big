@@ -583,7 +583,7 @@ img { max-width: 100%; }
     max-width: 1400px;
     margin: auto;
     display: grid;
-    grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+    grid-template-columns: repeat(auto-fit,minmax(280px,1fr));
     gap: 2rem;
     position: relative;
     z-index: 2;
@@ -591,69 +591,113 @@ img { max-width: 100%; }
 
 .stat-item {
     position: relative;
-    padding: 2rem;
+    padding: 2.5rem 2rem;
     text-align: center;
-    border-radius: 24px;
-
+    border-radius: 20px;
     background: rgba(255,255,255,.03);
     backdrop-filter: blur(20px);
-
     border: 1px solid rgba(255,255,255,.08);
-
-    transition: .4s ease;
+    transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
 }
 
 .stat-item::before {
     content: "";
     position: absolute;
     inset: 0;
-    padding: 1px;
-    border-radius: 24px;
-
+    border-radius: 20px;
     background: linear-gradient(
         135deg,
-        rgba(255,255,255,.3),
-        rgba(37,59,119,.8),
-        rgba(255,255,255,.3)
+        rgba(255,210,48,.15),
+        rgba(37,59,119,.3)
     );
-
-    -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-
-    -webkit-mask-composite: xor;
-            mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity .3s ease;
 }
 
 .stat-item:hover {
-    transform: translateY(-10px);
+    transform: translateY(-8px);
+    background: rgba(255,255,255,.06);
+    border-color: rgba(255,210,48,.3);
     box-shadow:
-        0 0 30px rgba(37,59,119,.4),
-        0 20px 40px rgba(0,0,0,.5);
+        0 0 40px rgba(255,210,48,.15),
+        0 20px 50px rgba(0,0,0,.4);
+}
+
+.stat-item:hover::before {
+    opacity: 1;
+}
+
+.stat-icon-bg {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #253b77, #1e2d5f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all .3s ease;
+    box-shadow: 0 0 30px rgba(37, 59, 119, 0.4);
+}
+
+.stat-item:hover .stat-icon-bg {
+    transform: scale(1.1);
+    box-shadow: 0 0 50px rgba(37, 59, 119, 0.6);
 }
 
 .stat-icon {
-    font-size: 2.5rem;
-    margin-bottom: 1rem;
+    font-size: 2.2rem;
+}
+
+.stat-content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    flex: 1;
 }
 
 .stat-number {
-    font-size: 3rem;
+    font-size: 2.8rem;
     font-weight: 900;
-    color: #fff;
-    margin-bottom: .5rem;
-
+    color: #ffd230;
+    margin-bottom: 0.25rem;
     text-shadow:
-        0 0 15px rgba(255,255,255,.15),
-        0 0 30px rgba(37,59,119,.5);
+        0 0 15px rgba(255,210,48,.3),
+        0 0 30px rgba(37,59,119,.2);
+    min-height: 3.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .stat-label {
-    color: rgba(255,255,255,.7);
+    color: rgba(255,255,255,.85);
     text-transform: uppercase;
-    letter-spacing: 1px;
-    font-size: .95rem;
+    letter-spacing: 1.5px;
+    font-size: .9rem;
+    font-weight: 700;
+}
+
+.stat-description {
+    color: rgba(255,255,255,.5);
+    font-size: .8rem;
+    letter-spacing: 0.5px;
+}
+
+.stat-loader {
+    display: inline-block;
+    animation: pulse 1.5s ease-in-out infinite;
+    font-size: 1.5rem;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.1); }
 }
 
 /* ============================================
@@ -749,21 +793,14 @@ img { max-width: 100%; }
     position: absolute;
     inset: 0;
     border-radius: 24px;
-    padding: 1px;
-
     background: linear-gradient(
         135deg,
         rgba(255,255,255,.15),
         rgba(37,59,119,.9),
         rgba(255,255,255,.15)
     );
-
-    -webkit-mask:
-        linear-gradient(#fff 0 0) content-box,
-        linear-gradient(#fff 0 0);
-
-    -webkit-mask-composite: xor;
-            mask-composite: exclude;
+    pointer-events: none;
+    opacity: 0;
 }
 
 .feature-card:hover {

@@ -70,12 +70,15 @@ function formatDate($date, $format = 'Y-m-d H:i:s') {
     return date($format, strtotime($date));
 }
 
-// Format match date for display (in Indian timezone)
+// Format match date for display (convert UTC to Indian timezone)
 function formatMatchDate($date) {
     if (empty($date)) {
         return 'TBD';
     }
-    $dateObj = new DateTime($date, new DateTimeZone('Asia/Kolkata'));
+    // First, create DateTime object treating input as UTC
+    $dateObj = new DateTime($date, new DateTimeZone('UTC'));
+    // Then convert to IST (Asia/Kolkata is UTC+5:30)
+    $dateObj->setTimezone(new DateTimeZone('Asia/Kolkata'));
     return $dateObj->format('M d, Y - H:i') . ' IST';
 }
 
@@ -89,43 +92,39 @@ function calculatePoints($prediction, $actual) {
     $actHome = (int)$actual['home_score'];
     $actAway = (int)$actual['away_score'];
     
-    // If prediction is winner-only type
+    $actualWinner = getWinner($actHome, $actAway);
+    $predictedWinner = !empty($prediction['predicted_winner']) 
+        ? $prediction['predicted_winner']
+        : getWinner($predHome, $predAway);
+    
+    // Winner-only prediction type
     if ($predType === 'winner') {
-        $predictedWinner = $prediction['predicted_winner'] ?? getWinner($predHome, $predAway);
-        $actualWinner = getWinner($actHome, $actAway);
-        
         if ($predictedWinner === $actualWinner) {
-            return POINTS_CORRECT_WINNER; // 5 points for correct winner
+            return POINTS_CORRECT_WINNER; // 5 points
         }
         return 0;
     }
     
-    // Score prediction type or both type
-    // Exact score: 10 points
-    if ($predHome === $actHome && $predAway === $actAway) {
-        return POINTS_EXACT_SCORE;
+    // Both or Score type: check exact score first
+    $isExactScore = ($predHome === $actHome && $predAway === $actAway);
+    
+    if ($isExactScore) {
+        $points += POINTS_EXACT_SCORE; // +10 for exact score
     }
     
-    // For 'both' type, also check winner prediction for partial points
+    // For 'both' type, ALWAYS check winner prediction (even if score was exact)
     if ($predType === 'both') {
-        $predictedWinner = $prediction['predicted_winner'] ?? getWinner($predHome, $predAway);
-        $actualWinner = getWinner($actHome, $actAway);
-        
         if ($predictedWinner === $actualWinner) {
-            $points += POINTS_CORRECT_WINNER; // 5 points for correct winner
+            $points += POINTS_CORRECT_WINNER; // +5 for correct winner
         }
-        return $points;
+        return $points; // Returns 0, 5, 10, or 15
     }
     
-    // Correct winner only: 5 points (for score type)
-    $predWinner = getWinner($predHome, $predAway);
-    $actualWinner = getWinner($actHome, $actAway);
-    
-    if ($predWinner === $actualWinner) {
-        $points += POINTS_CORRECT_WINNER;
+    // For 'score' type, only add winner points if score wasn't exact
+    if (!$isExactScore && $predictedWinner === $actualWinner) {
+        $points += POINTS_CORRECT_WINNER; // +5 for correct winner
     }
     
-    // Cap at max points
     return min($points, MAX_POINTS_PER_MATCH);
 }
 
@@ -138,7 +137,10 @@ function getWinner($home, $away) {
 
 // Check if match is locked for predictions (5 minutes before match time)
 function isMatchLocked($matchDate) {
-    $matchDateTime = new DateTime($matchDate, new DateTimeZone('Asia/Kolkata'));
+    // Convert UTC from database to IST for comparison
+    $matchDateTime = new DateTime($matchDate, new DateTimeZone('UTC'));
+    $matchDateTime->setTimezone(new DateTimeZone('Asia/Kolkata'));
+    
     $now = new DateTime('now', new DateTimeZone('Asia/Kolkata'));
     
     // Calculate cutoff time (5 minutes before match)
@@ -151,7 +153,10 @@ function isMatchLocked($matchDate) {
 
 // Check if user can still predict (returns remaining minutes or false)
 function getPredictionTimeRemaining($matchDate) {
-    $matchDateTime = new DateTime($matchDate, new DateTimeZone('Asia/Kolkata'));
+    // Convert UTC from database to IST for comparison
+    $matchDateTime = new DateTime($matchDate, new DateTimeZone('UTC'));
+    $matchDateTime->setTimezone(new DateTimeZone('Asia/Kolkata'));
+    
     $now = new DateTime('now', new DateTimeZone('Asia/Kolkata'));
     
     // Calculate cutoff time (5 minutes before match)

@@ -51,8 +51,8 @@ class MainController {
         
         if (isLoggedIn()) {
             $userId = getCurrentUserId();
-            foreach ($todayMatches as &$match) {
-                $match['my_prediction'] = $this->predictionModel->getMatchPrediction($match['id'], $userId);
+            foreach ($todayMatches as $key => $match) {
+                $todayMatches[$key]['my_prediction'] = $this->predictionModel->getMatchPrediction($match['id'], $userId);
             }
         }
         
@@ -159,5 +159,26 @@ class MainController {
     
     public function about() {
         include_once __DIR__ . '/../views/about.php';
+    }
+
+    public function predictions() {
+        if (!isLoggedIn()) {
+            redirect(BASE_URL . '/login');
+        }
+
+        $userId = getCurrentUserId();
+        $user = $this->userModel->getUserById($userId);
+        $predictions = $this->predictionModel->getUserPredictions($userId);
+        $stats = $this->predictionModel->getUserCorrectPredictions($userId);
+        $accuracy = $this->predictionModel->getUserPredictionAccuracy($userId);
+
+        // Add match results to predictions
+        foreach ($predictions as &$pred) {
+            $pred['home_score_actual'] = $pred['home_score'] ?? null;
+            $pred['away_score_actual'] = $pred['away_score'] ?? null;
+            $pred['is_correct'] = $pred['points'] > 0;
+        }
+
+        include_once __DIR__ . '/../views/predictions.php';
     }
 }

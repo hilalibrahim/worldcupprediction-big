@@ -23,7 +23,7 @@
             <div class="form-group">
                 <label class="form-label">Email</label>
                 <input type="email" name="email" class="form-input" required 
-                       placeholder="admin@predictcup.com">
+                       placeholder="username">
             </div>
 
             <div class="form-group">

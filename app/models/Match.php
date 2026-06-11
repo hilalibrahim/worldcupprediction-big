@@ -66,12 +66,37 @@ class MatchModel {
         $db = Database::getInstance();
         $match = $this->getMatchById($matchId);
         if (!$match || $match['status'] !== 'completed') return false;
+
+        $actualWinner = getWinner($match['home_score'], $match['away_score']);
         $predictions = $db->resultSet('SELECT * FROM predictions WHERE match_id = ?', [$matchId]);
+
         foreach ($predictions as $prediction) {
             $points = calculatePoints($prediction, $match);
-            $db->update('predictions', ['points' => $points, 'is_correct_winner' => getWinner($prediction['home_score'], $prediction['away_score']) === getWinner($match['home_score'], $match['away_score']) ? 1 : 0, 'is_correct_diff' => ($prediction['home_score'] - $prediction['away_score']) === ($match['home_score'] - $match['away_score']) ? 1 : 0, 'is_exact_score' => ($prediction['home_score'] === $match['home_score'] && $prediction['away_score'] === $match['away_score']) ? 1 : 0], 'id = ' . (int)$prediction['id']);
-            $db->update('users', ['points = points + ' . $points], 'id = ' . (int)$prediction['user_id']);
+
+            // Determine the predicted winner: use the explicit field for 'both'/'winner'
+            // predictions, otherwise derive it from the predicted score.
+            $predictedWinner = !empty($prediction['predicted_winner'])
+                ? $prediction['predicted_winner']
+                : getWinner($prediction['home_score'], $prediction['away_score']);
+
+            $predHome = (int)$prediction['home_score'];
+            $predAway = (int)$prediction['away_score'];
+            $actHome = (int)$match['home_score'];
+            $actAway = (int)$match['away_score'];
+
+            $isCorrectWinner = ($predictedWinner === $actualWinner) ? 1 : 0;
+            $isCorrectDiff = (($predHome - $predAway) === ($actHome - $actAway)) ? 1 : 0;
+            $isExactScore = (($predHome === $actHome) && ($predAway === $actAway)) ? 1 : 0;
+
+            $db->update('predictions', [
+                'points' => $points,
+                'is_correct_winner' => $isCorrectWinner,
+                'is_correct_diff' => $isCorrectDiff,
+                'is_exact_score' => $isExactScore
+            ], 'id = ' . (int)$prediction['id']);
         }
+
+        // Recalculate each affected user's total points from their predictions.
         $this->updateRoomLeaderboards($matchId);
         return true;
     }
