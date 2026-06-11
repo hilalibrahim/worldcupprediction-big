@@ -36,6 +36,11 @@ class Prediction {
             return ['success' => false, 'message' => 'Match not found'];
         }
         
+        // Check if match is locked (5 minutes before match start or already started)
+        if (isMatchLocked($match['match_date'])) {
+            return ['success' => false, 'message' => 'Predictions are locked for this match. Predictions close 5 minutes before match start.'];
+        }
+        
         if ($match['is_locked'] || $match['status'] === 'completed') {
             return ['success' => false, 'message' => 'Predictions are locked for this match'];
         }

@@ -147,8 +147,10 @@ class MainController {
         $rank = 1;
         foreach ($leaderboard as &$user) {
             $user['rank'] = $rank++;
-            $user['accuracy'] = $user['predictions'] > 0 
-                ? round(($user['correct_predictions'] / $user['predictions']) * 100, 2) 
+            $predictions = (int)($user['predictions'] ?? 0);
+            $correct = (int)($user['correct_predictions'] ?? 0);
+            $user['accuracy'] = $predictions > 0 
+                ? round(($correct / $predictions) * 100, 2) 
                 : 0;
         }
         

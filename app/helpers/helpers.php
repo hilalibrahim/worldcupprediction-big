@@ -70,20 +70,20 @@ function formatDate($date, $format = 'Y-m-d H:i:s') {
     return date($format, strtotime($date));
 }
 
-// Format match date for display
+// Format match date for display (in Indian timezone)
 function formatMatchDate($date) {
     if (empty($date)) {
         return 'TBD';
     }
-    $dateObj = new DateTime($date);
-    return $dateObj->format('M d, Y - H:i');
+    $dateObj = new DateTime($date, new DateTimeZone('Asia/Kolkata'));
+    return $dateObj->format('M d, Y - H:i') . ' IST';
 }
 
 // Calculate points for prediction
 function calculatePoints($prediction, $actual) {
     $points = 0;
     
-    $predType = $prediction['prediction_type'] ?? 'score';
+    $predType = $prediction['prediction_type'] ?? 'both';
     $predHome = (int)$prediction['home_score'];
     $predAway = (int)$prediction['away_score'];
     $actHome = (int)$actual['home_score'];
@@ -100,13 +100,24 @@ function calculatePoints($prediction, $actual) {
         return 0;
     }
     
-    // Score prediction type
+    // Score prediction type or both type
     // Exact score: 10 points
     if ($predHome === $actHome && $predAway === $actAway) {
         return POINTS_EXACT_SCORE;
     }
     
-    // Correct winner only: 5 points
+    // For 'both' type, also check winner prediction for partial points
+    if ($predType === 'both') {
+        $predictedWinner = $prediction['predicted_winner'] ?? getWinner($predHome, $predAway);
+        $actualWinner = getWinner($actHome, $actAway);
+        
+        if ($predictedWinner === $actualWinner) {
+            $points += POINTS_CORRECT_WINNER; // 5 points for correct winner
+        }
+        return $points;
+    }
+    
+    // Correct winner only: 5 points (for score type)
     $predWinner = getWinner($predHome, $predAway);
     $actualWinner = getWinner($actHome, $actAway);
     
@@ -125,11 +136,38 @@ function getWinner($home, $away) {
     return 'draw';
 }
 
-// Check if match is locked for predictions
+// Check if match is locked for predictions (5 minutes before match time)
 function isMatchLocked($matchDate) {
-    $matchDateTime = new DateTime($matchDate);
-    $now = new DateTime();
-    return $now >= $matchDateTime;
+    $matchDateTime = new DateTime($matchDate, new DateTimeZone('Asia/Kolkata'));
+    $now = new DateTime('now', new DateTimeZone('Asia/Kolkata'));
+    
+    // Calculate cutoff time (5 minutes before match)
+    $cutoffTime = clone $matchDateTime;
+    $cutoffTime->modify('-' . PREDICTION_CUTOFF_MINUTES . ' minutes');
+    
+    // Match is locked if current time is >= cutoff time
+    return $now >= $cutoffTime;
+}
+
+// Check if user can still predict (returns remaining minutes or false)
+function getPredictionTimeRemaining($matchDate) {
+    $matchDateTime = new DateTime($matchDate, new DateTimeZone('Asia/Kolkata'));
+    $now = new DateTime('now', new DateTimeZone('Asia/Kolkata'));
+    
+    // Calculate cutoff time (5 minutes before match)
+    $cutoffTime = clone $matchDateTime;
+    $cutoffTime->modify('-' . PREDICTION_CUTOFF_MINUTES . ' minutes');
+    
+    // If already locked
+    if ($now >= $cutoffTime) {
+        return false;
+    }
+    
+    // Calculate minutes remaining
+    $interval = $now->diff($cutoffTime);
+    $minutesRemaining = ($interval->days * 24 * 60) + ($interval->h * 60) + $interval->i;
+    
+    return max(0, $minutesRemaining);
 }
 
 // Upload profile picture

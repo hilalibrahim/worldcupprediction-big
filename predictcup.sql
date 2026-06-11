@@ -248,5 +248,5 @@ INSERT INTO achievements (name, description, badge_type, points_required) VALUES
 ('Goal Guru', 'Correctly predict 50 exact scores', 'guru', 0),
 ('Champion Predictor', 'Predict the World Cup winner correctly', 'champion', 0);
 -- Add prediction_type column to predictions table
-ALTER TABLE predictions ADD COLUMN prediction_type ENUM('winner', 'score') DEFAULT 'score' AFTER away_score;
+ALTER TABLE predictions ADD COLUMN prediction_type ENUM('winner', 'score', 'both') DEFAULT 'both' AFTER away_score;
 ALTER TABLE predictions ADD COLUMN predicted_winner ENUM('home', 'draw', 'away') DEFAULT NULL AFTER prediction_type;

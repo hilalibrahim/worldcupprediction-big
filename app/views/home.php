@@ -8,92 +8,191 @@
 </head>
 <body data-flash-type="<?php echo $_SESSION['flash_type'] ?? '' ?>" data-flash-message="<?php echo $_SESSION['flash_message'] ?? '' ?>">
     <!-- Navigation -->
-    <nav class="navbar">
-        <div class="container">
-            <a href="/" class="navbar-brand">
-                <img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;">
-                <span>PredictCup</span>
-            </a>
-            <div class="navbar-menu">
-                <a href="/worldcupprediction-big" class="active">Home</a>
-                <a href="/worldcupprediction-big/dashboard">Dashboard</a>
-                <a href="/worldcupprediction-big/daily-matches">Matches</a>
-                <a href="/worldcupprediction-big/leaderboard">Leaderboard</a>
-                <a href="/worldcupprediction-big/rooms">Rooms</a>
-                <?php if (isLoggedIn()): ?>
-                    <a href="/worldcupprediction-big/profile">Profile</a>
-                    <a href="/worldcupprediction-big/logout">Logout</a>
-                    <span>Welcome, <strong><?php echo htmlspecialchars($_SESSION['username'] ?? '') ?></strong></span>
-                <?php else: ?>
-                    <a href="/worldcupprediction-big/login">Login</a>
-                    <a href="/worldcupprediction-big/register" class="btn btn-primary">Register Now</a>
-                <?php endif; ?>
+<nav class="navbar">
+    <div class="container">
+
+        <a href="/worldcupprediction-big" class="navbar-brand">
+            <img src="/worldcupprediction-big/public/uploads/logo.png" alt="World Cup Prediction 2026">
+            <div class="brand-text">
+                <span class="brand-name">PredictCup</span>
+                <span class="brand-subtitle">World Cup 2026</span>
             </div>
+        </a>
+
+        <div class="navbar-menu">
+
+            <a href="/worldcupprediction-big" class="active">Home</a>
+            <a href="/worldcupprediction-big/dashboard">Dashboard</a>
+            <a href="/worldcupprediction-big/daily-matches">Matches</a>
+            <a href="/worldcupprediction-big/leaderboard">Leaderboard</a>
+            <a href="/worldcupprediction-big/rooms">Rooms</a>
+
+            <?php if (isLoggedIn()): ?>
+
+                <span class="user-badge">
+                    👋 <?php echo htmlspecialchars($_SESSION['username'] ?? '') ?>
+                </span>
+
+                <a href="/worldcupprediction-big/profile">Profile</a>
+
+                <a href="/worldcupprediction-big/logout" class="logout-btn">
+                    Logout
+                </a>
+
+            <?php else: ?>
+
+                <a href="/worldcupprediction-big/login">
+                    Login
+                </a>
+
+                <a href="/worldcupprediction-big/register" class="register-btn">
+                    Register Free
+                </a>
+
+            <?php endif; ?>
+
         </div>
-    </nav>
+
+    </div>
+</nav>
 
     <!-- Hero Section -->
-    <section class="hero">
+<section class="hero">
+    <div class="hero-container">
+
         <div class="hero-content">
-            <h1>Predict Every Match. Win Every Room.</h1>
-            <p>Challenge friends, family, and football fans worldwide. Make predictions, earn points, and climb the leaderboard!</p>
-            <div class="hero-buttons">
-                <a href="/worldcupprediction-big/register" class="btn btn-primary">Register Now</a>
-                <a href="/worldcupprediction-big/leaderboard" class="btn btn-secondary">View Leaderboard</a>
+
+            <div class="hero-brand">
+                <img src="/worldcupprediction-big/public/uploads/logo.png" alt="World Cup Prediction 2026 Logo">
+                <span>World Cup Prediction 2026</span>
             </div>
+
+            <h1>Predict Every Match.<br>Win Every Room.</h1>
+
+            <p>
+                Challenge friends, family, and football fans worldwide.
+                Make predictions, earn points, and climb the leaderboard
+                during the biggest football event on Earth.
+            </p>
+
+            <div class="hero-buttons">
+                <a href="/worldcupprediction-big/register" class="btn btn-primary">
+                    Register Now
+                </a>
+
+                <a href="/worldcupprediction-big/leaderboard" class="btn btn-secondary">
+                    View Leaderboard
+                </a>
+            </div>
+
+            <div class="powered-by">
+                Powered By
+                <img src="/worldcupprediction-big/public/uploads/logo.png" alt="Logo">
+            </div>
+
         </div>
-    </section>
+
+        <div class="hero-image">
+            <img src="/worldcupprediction-big/public/uploads/hero.png" alt="World Cup 2026">
+        </div>
+
+    </div>
+</section>
 
     <!-- Stats Section -->
-    <section class="stats">
-        <div class="stats-grid">
-            <div class="stat-item">
-                <div class="stat-number" id="totalUsers">0</div>
-                <div class="stat-label">Total Users</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalRooms">0</div>
-                <div class="stat-label">Active Rooms</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="totalPredictions">0</div>
-                <div class="stat-label">Predictions Made</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-number" id="matchesPlayed">0</div>
-                <div class="stat-label">Matches Played</div>
-            </div>
+ <section class="stats">
+    <div class="stats-header">
+        <h2>Prediction Platform Statistics</h2>
+        <p>Join thousands of football fans predicting the biggest tournament in the world.</p>
+    </div>
+
+    <div class="stats-grid">
+
+        <div class="stat-item">
+            <div class="stat-icon">👥</div>
+            <div class="stat-number" id="totalUsers">0</div>
+            <div class="stat-label">Total Users</div>
         </div>
-    </section>
+
+        <div class="stat-item">
+            <div class="stat-icon">🏆</div>
+            <div class="stat-number" id="totalRooms">0</div>
+            <div class="stat-label">Active Rooms</div>
+        </div>
+
+        <div class="stat-item">
+            <div class="stat-icon">⚽</div>
+            <div class="stat-number" id="totalPredictions">0</div>
+            <div class="stat-label">Predictions Made</div>
+        </div>
+
+        <div class="stat-item">
+            <div class="stat-icon">📅</div>
+            <div class="stat-number" id="matchesPlayed">0</div>
+            <div class="stat-label">Matches Played</div>
+        </div>
+
+    </div>
+</section>
 
     <!-- Features Section -->
-    <section class="features">
-        <div class="container">
-            <h2 style="text-align: center; color: var(--text-light); margin-bottom: 3rem;">Features</h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">⚽</div>
-                    <h3>Match Predictions</h3>
-                    <p>Predict match outcomes correctly to earn points. Exact scores give you the most points!</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">👥</div>
-                    <h3>Private Rooms</h3>
-                    <p>Create or join private rooms with friends. Compete in exclusive prediction leagues.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🏆</div>
-                    <h3>Global Rankings</h3>
-                    <p>Climb the global leaderboard and showcase your prediction skills against football fans worldwide.</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon">🏅</div>
-                    <h3>Achievement Badges</h3>
-                    <p>Earn badges for reaching milestones like 10 correct predictions, Prediction Master, and more.</p>
-                </div>
-            </div>
+<section class="features">
+    <div class="container">
+
+        <div class="section-header">
+            <span class="section-tag">PLAY • PREDICT • WIN</span>
+
+            <h2>Your World Cup Journey Starts Here</h2>
+
+            <p>
+                Make predictions, join rooms, challenge friends and family,
+                track your score, and compete for the top spot on the leaderboard
+                throughout World Cup 2026.
+            </p>
         </div>
-    </section>
+
+        <div class="features-grid">
+
+            <div class="feature-card">
+                <div class="feature-icon">01</div>
+                <h3>Match Predictions</h3>
+                <p>
+                    Predict match winners, draws, and exact scores.
+                    The more accurate your predictions, the more points you earn.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">02</div>
+                <h3>Private Rooms</h3>
+                <p>
+                    Create your own prediction room and invite friends,
+                    family, colleagues, or football fans to compete together.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">03</div>
+                <h3>Leaderboard Rankings</h3>
+                <p>
+                    Watch your position rise after every match and
+                    compete to become the ultimate prediction champion.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">04</div>
+                <h3>Achievement Badges</h3>
+                <p>
+                    Unlock special badges for winning streaks,
+                    accurate score predictions, and prediction milestones.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+</section>
 
     <!-- Footer -->
     <footer class="footer">

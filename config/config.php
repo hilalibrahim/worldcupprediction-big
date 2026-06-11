@@ -28,8 +28,11 @@ define('MAX_UPLOAD_SIZE', 5242880);
 define('ALLOWED_IMAGE_TYPES', ['gif', 'jpg', 'jpeg', 'png']);
 
 // App configuration
-define('DEFAULT_TIMEZONE', 'UTC');
+define('DEFAULT_TIMEZONE', 'Asia/Kolkata');
 date_default_timezone_set(DEFAULT_TIMEZONE);
+
+// Prediction cutoff time
+define('PREDICTION_CUTOFF_MINUTES', 5); // Users can predict until 5 minutes before match start
 
 // Pagination
 define('ITEMS_PER_PAGE', 20);
