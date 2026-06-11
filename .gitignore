@@ -1,0 +1,28 @@
+# Files to ignore
+vendor/
+logs/
+*.log
+.env
+
+# Uploads
+/uploads/*
+!/uploads/.gitkeep
+
+# Cache
+/cache/*
+!.cache/.gitkeep
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Sensitive
+config/database.php
+config/session.php
