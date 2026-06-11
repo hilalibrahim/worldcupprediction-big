@@ -14,10 +14,10 @@ class Prediction {
     public function addPrediction($data) {
         $userId = (int)$data['user_id'];
         $matchId = (int)$data['match_id'];
-        $predictionType = $data['prediction_type'] ?? 'score';
+        $predictionType = $data['prediction_type'] ?? 'both';
         $homeScore = (int)($data['home_score'] ?? 0);
         $awayScore = (int)($data['away_score'] ?? 0);
-        $predictedWinner = $data['predicted_winner'] ?? null;
+        $predictedWinner = $data['predicted_winner'] ?? 'draw';
         
         // Check if prediction already exists
         $existing = $this->db->single(
@@ -40,17 +40,17 @@ class Prediction {
             return ['success' => false, 'message' => 'Predictions are locked for this match'];
         }
         
-        // Use direct SQL insert to avoid parameterized query issues
-        $predictedWinnerVal = ($predictionType === 'winner' && $predictedWinner) ? "'" . $predictedWinner . "'" : "NULL";
+        // Use direct SQL insert with both score and winner
+        $predictedWinnerVal = !empty($predictedWinner) ? "'" . $predictedWinner . "'" : "'draw'";
         
         $sql = "INSERT INTO predictions (user_id, match_id, home_score, away_score, points, created_at, prediction_type, predicted_winner) 
-                VALUES ($userId, $matchId, $homeScore, $awayScore, 0, NOW(), '$predictionType', $predictedWinnerVal)";
+                VALUES ($userId, $matchId, $homeScore, $awayScore, 0, NOW(), 'both', $predictedWinnerVal)";
         
         try {
             $this->db->query($sql);
             return ['success' => true, 'id' => $this->db->lastInsertId()];
         } catch (Exception $e) {
-            // If prediction_type column doesn't exist, try without it
+            // If prediction_type column doesn't exist, try basic insert
             if (strpos($e->getMessage(), 'prediction_type') !== false) {
                 $sql = "INSERT INTO predictions (user_id, match_id, home_score, away_score, points, created_at) 
                         VALUES ($userId, $matchId, $homeScore, $awayScore, 0, NOW())";

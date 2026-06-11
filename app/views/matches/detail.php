@@ -73,21 +73,59 @@
                 <div class="match-actions" style="margin-top: 2rem;">
                     <form method="POST" action="/worldcupprediction-big/predict" id="predictForm">
                         <input type="hidden" name="match_id" value="<?php echo $match['id'] ?>">
-                        <input type="hidden" name="prediction_type" value="score">
                         
-                        <div style="display: flex; align-items: center; gap: 1rem; justify-content: center; margin-bottom: 1rem;">
-                            <div>
-                                <label style="color: var(--text-light); display: block; margin-bottom: 0.5rem;"><?php echo htmlspecialchars($match['home_team_name']) ?></label>
-                                <input type="number" name="home_score" class="score-input" min="0" max="20" value="0" required>
+                        <div style="background: var(--glass-bg); padding: 1.5rem; border-radius: 1rem;">
+                            <h3 style="color: var(--text-light); margin-bottom: 1.5rem; text-align: center;">Make Your Prediction</h3>
+                            
+                            <!-- Score Prediction -->
+                            <div style="margin-bottom: 2rem; padding-bottom: 2rem; border-bottom: 1px solid var(--glass-border);">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                                    <span style="color: var(--accent-color); font-size: 1.5rem;">🎯</span>
+                                    <h4 style="color: var(--text-light); margin: 0;">Exact Score (10 pts if correct)</h4>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 1rem; justify-content: center;">
+                                    <div style="text-align: center;">
+                                        <label style="color: var(--text-light); display: block; font-size: 0.875rem; margin-bottom: 0.5rem;"><?php echo htmlspecialchars(substr($match['home_team_name'], 0, 12)) ?></label>
+                                        <input type="number" name="home_score" class="score-input" min="0" max="20" value="0" style="width: 60px; text-align: center; font-size: 1.2rem;">
+                                    </div>
+                                    <span style="color: var(--accent-color); font-size: 1.5rem; font-weight: bold;">-</span>
+                                    <div style="text-align: center;">
+                                        <label style="color: var(--text-light); display: block; font-size: 0.875rem; margin-bottom: 0.5rem;"><?php echo htmlspecialchars(substr($match['away_team_name'], 0, 12)) ?></label>
+                                        <input type="number" name="away_score" class="score-input" min="0" max="20" value="0" style="width: 60px; text-align: center; font-size: 1.2rem;">
+                                    </div>
+                                </div>
                             </div>
-                            <span style="color: var(--text-light); font-size: 1.5rem;">-</span>
-                            <div>
-                                <label style="color: var(--text-light); display: block; margin-bottom: 0.5rem;"><?php echo htmlspecialchars($match['away_team_name']) ?></label>
-                                <input type="number" name="away_score" class="score-input" min="0" max="20" value="0" required>
+                            
+                            <!-- Winner Prediction -->
+                            <div style="margin-bottom: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 1rem;">
+                                    <span style="color: var(--accent-color); font-size: 1.5rem;">👑</span>
+                                    <h4 style="color: var(--text-light); margin: 0;">Who Wins? (5 pts if correct)</h4>
+                                </div>
+                                <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                                    <label style="cursor: pointer; padding: 0.75rem 1.5rem; background: rgba(255, 198, 0, 0.1); border: 2px solid transparent; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="radio" name="predicted_winner" value="home" checked style="cursor: pointer;">
+                                        <span style="color: var(--text-light); font-weight: bold;"><?php echo htmlspecialchars($match['home_team_name']) ?> Wins</span>
+                                    </label>
+                                    <label style="cursor: pointer; padding: 0.75rem 1.5rem; background: rgba(255, 198, 0, 0.1); border: 2px solid transparent; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="radio" name="predicted_winner" value="draw" style="cursor: pointer;">
+                                        <span style="color: var(--text-light); font-weight: bold;">Draw</span>
+                                    </label>
+                                    <label style="cursor: pointer; padding: 0.75rem 1.5rem; background: rgba(255, 198, 0, 0.1); border: 2px solid transparent; border-radius: 0.5rem; transition: all 0.2s; display: flex; align-items: center; gap: 0.5rem;">
+                                        <input type="radio" name="predicted_winner" value="away" style="cursor: pointer;">
+                                        <span style="color: var(--text-light); font-weight: bold;"><?php echo htmlspecialchars($match['away_team_name']) ?> Wins</span>
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div style="text-align: center; margin-top: 1.5rem;">
+                                <button type="submit" class="btn btn-primary" style="font-size: 1rem; padding: 0.75rem 2rem;">Submit Both Predictions</button>
+                            </div>
+                            
+                            <div style="text-align: center; margin-top: 1rem; color: var(--text-gray); font-size: 0.875rem;">
+                                <p>📊 Fill in BOTH sections above for maximum points</p>
                             </div>
                         </div>
-
-                        <button type="submit" class="btn btn-primary">Predict Score (10 pts)</button>
                     </form>
                 </div>
 
@@ -134,25 +172,7 @@
     </div>
 
     <script>
-        function togglePredictionType() {
-            const predType = document.querySelector('input[name="prediction_type"]:checked').value;
-            const scorePred = document.getElementById('scorePrediction');
-            const winnerPred = document.getElementById('winnerPrediction');
-            
-            if (predType === 'score') {
-                scorePred.style.display = 'flex';
-                winnerPred.style.display = 'none';
-                // Make score inputs required for score prediction
-                document.querySelectorAll('#scorePrediction input').forEach(input => input.required = true);
-                document.querySelectorAll('#winnerPrediction input').forEach(input => input.required = false);
-            } else {
-                scorePred.style.display = 'none';
-                winnerPred.style.display = 'flex';
-                // Make score inputs not required for winner prediction
-                document.querySelectorAll('#scorePrediction input').forEach(input => input.required = false);
-                document.querySelectorAll('#winnerPrediction input').forEach(input => input.required = false);
-            }
-        }
+        // No need for toggle function - both predictions shown together
     </script>
     <script src="/worldcupprediction-big/public/js/main.js"></script>
 </body>

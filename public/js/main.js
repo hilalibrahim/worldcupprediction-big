@@ -169,29 +169,9 @@ function setupMatchPrediction() {
     const predictForm = document.getElementById('predictForm');
     
     if (predictForm) {
-        predictForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const formData = new FormData(this);
-            formData.append('csrf_token', document.querySelector('[name="csrf_token"]').value);
-            
-            fetch('/worldcupprediction-big/api/predictions', {
-                method: 'POST',
-                body: formData
-            })
-            .then(function(res) { return res.json(); })
-            .then(function(data) {
-                if (data.success) {
-                    showToast('Prediction saved successfully!', 'success');
-                    setTimeout(function() { window.location.reload(); }, 1000);
-                } else {
-                    showToast(data.message || 'Failed to save prediction', 'error');
-                }
-            })
-            .catch(function(err) {
-                showToast('An error occurred', 'error');
-            });
-        });
+        // Just let the form submit normally to /worldcupprediction-big/predict
+        // No need for AJAX handling
+        return;
     }
 }
 

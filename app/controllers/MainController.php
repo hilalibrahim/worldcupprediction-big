@@ -88,40 +88,28 @@ class MainController {
         
         if (isPostRequest()) {
             $matchId = (int)$_POST['match_id'];
+            $homeScore = (int)($_POST['home_score'] ?? 0);
+            $awayScore = (int)($_POST['away_score'] ?? 0);
+            $predictedWinner = sanitize($_POST['predicted_winner'] ?? 'draw');
             
-            // Debug: log the POST data
-            error_log("Prediction POST: " . print_r($_POST, true));
-            
-            // Check if this is a room prediction (uses dynamic field names with match ID)
-            if (isset($_POST['prediction_type_' . $matchId])) {
-                $predictionType = sanitize($_POST['prediction_type_' . $matchId]);
-                $predictedWinner = sanitize($_POST['predicted_winner_' . $matchId] ?? 'draw');
-            } else {
-                $predictionType = sanitize($_POST['prediction_type'] ?? 'score');
-                $predictedWinner = sanitize($_POST['predicted_winner'] ?? 'draw');
-            }
-            
-            error_log("Prediction Type: $predictionType, Winner: $predictedWinner");
-            
+            // Both types of predictions together
             $data = [
                 'user_id' => getCurrentUserId(),
                 'match_id' => $matchId,
-                'prediction_type' => $predictionType,
-                'home_score' => (int)($_POST['home_score'] ?? 0),
-                'away_score' => (int)($_POST['away_score'] ?? 0),
-                'predicted_winner' => $predictionType === 'winner' ? $predictedWinner : null
+                'prediction_type' => 'both',  // Both score and winner
+                'home_score' => $homeScore,
+                'away_score' => $awayScore,
+                'predicted_winner' => $predictedWinner
             ];
-            
-            error_log("Prediction Data: " . print_r($data, true));
             
             $result = $this->predictionModel->addPrediction($data);
             
-            error_log("Prediction Result: " . print_r($result, true));
-            
             if ($result['success']) {
-                setFlashMessage('success', 'Prediction saved successfully!');
+                setFlashMessage('success', 'Prediction saved!');
             } else {
-                setFlashMessage('error', $result['message']);
+                // Show the actual error for debugging
+                $errorMsg = $result['message'] ?? 'Unknown error';
+                setFlashMessage('error', $errorMsg);
             }
             
             redirect(BASE_URL . "/match/{$data['match_id']}");
