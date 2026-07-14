@@ -235,7 +235,7 @@ class MatchModel {
             'api_match_id' => $apiMatchId,
             'home_team_id' => $homeTeamId,
             'away_team_id' => $awayTeamId,
-            'match_date' => $matchData['utcDate'],
+            'match_date' => date('Y-m-d H:i:s', strtotime($matchData['utcDate'])),
             'stadium' => $matchData['venue'] ?? 'Unknown',
             'stage' => $matchData['stage'] ?? 'Group Stage',
             'status' => $status,
