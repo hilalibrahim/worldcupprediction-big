@@ -254,19 +254,7 @@ function isUserInRoom($roomId, $userId) {
     return (bool)$member;
 }
 
-// Calculate user accuracy
-function calculateUserAccuracy($userId) {
-    $db = Database::getInstance();
-    $stats = $db->single(
-        'SELECT COUNT(*) as total, SUM(CASE WHEN points > 0 THEN 1 ELSE 0 END) as correct 
-         FROM predictions WHERE user_id = ?', [$userId]
-    );
-    
-    if (!$stats || $stats['total'] == 0) {
-        return 0;
-    }
-    return round(($stats['correct'] / $stats['total']) * 100, 2);
-}
+
 
 // Log activity
 function logActivity($userId, $action, $details = '') {

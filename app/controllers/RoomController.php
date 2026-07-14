@@ -106,7 +106,20 @@ class RoomController {
         $isOwner = $currentUser['id'] === $room['owner_id'];
         
         $members = $this->roomModel->getRoomMembers($id);
-        $leaderboard = $this->roomModel->getRoomLeaderboard($id);
+        
+        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($currentPage < 1) $currentPage = 1;
+        $limit = 20;
+        
+        $paginatedData = $this->roomModel->getRoomLeaderboardPaginated($id, $currentPage, $limit);
+        $leaderboard = $paginatedData['leaderboard'];
+        $totalPages = $paginatedData['total_pages'];
+        
+        $rank = ($currentPage - 1) * $limit + 1;
+        foreach ($leaderboard as &$user) {
+            $user['rank'] = $rank++;
+        }
+        
         $upcomingMatches = $this->matchModel->getUpcomingMatches(10);
         
         // Get current user's predictions for room matches

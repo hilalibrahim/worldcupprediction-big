@@ -4,27 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Room - PredictCup</title>
-    <link rel="stylesheet" href="/worldcupprediction-big/public/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/style.css">
 </head>
 <body>
+    <!-- Global Loader -->
+    <div id="page-loader">
+        <img src="<?= BASE_URL ?>/public/uploads/logo.png" alt="Loading...">
+    </div>
     <nav class="navbar">
-        <div class="container">
-            <a href="/" class="navbar-brand"><img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;"><span>PredictCup</span></a>
-            <div class="navbar-menu">
-                <a href="/worldcupprediction-big">Home</a>
-                <a href="/worldcupprediction-big/dashboard">Dashboard</a>
-                <a href="/worldcupprediction-big/daily-matches">Matches</a>
-                <a href="/worldcupprediction-big/leaderboard">Leaderboard</a>
-                <a href="/worldcupprediction-big/rooms" class="active">Rooms</a>
-                <?php if (isLoggedIn()): ?>
-                    <a href="/worldcupprediction-big/profile">Profile</a>
-                    <a href="/worldcupprediction-big/logout">Logout</a>
-                <?php else: ?>
-                    <a href="/worldcupprediction-big/login">Login</a>
-                <?php endif; ?>
-            </div>
+    <div class="container">
+        <!-- Logo -->
+        <a href="<?= BASE_URL ?>/" class="navbar-brand">
+            <img src="<?= BASE_URL ?>/public/uploads/logo.png" alt="World Cup Prediction 2026">
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="navbar-menu">
+            <a href="<?= BASE_URL ?>/" class="nav-link">Home</a>
+            <a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a>
+            <a href="<?= BASE_URL ?>/daily-matches" class="nav-link">Matches</a>
+            <a href="<?= BASE_URL ?>/leaderboard" class="nav-link">Leaderboard</a>
+            
+            <?php if (isLoggedIn()): ?>
+                <a href="<?= BASE_URL ?>/profile" class="nav-link">Profile</a>
+                <a href="<?= BASE_URL ?>/logout" class="nav-link" style="color: #ff5d5d;">Logout</a>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>/login" class="nav-link">Login</a>
+                <a href="<?= BASE_URL ?>/register" class="nav-cta">Register Free</a>
+            <?php endif; ?>
         </div>
-    </nav>
+
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn">
+            ☰
+        </button>
+
+        <!-- Mobile Navigation Dropdown -->
+        <div class="mobile-dropdown">
+            <a href="<?= BASE_URL ?>/" class="nav-link">Home</a>
+            <a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a>
+            <a href="<?= BASE_URL ?>/daily-matches" class="nav-link">Matches</a>
+            <a href="<?= BASE_URL ?>/leaderboard" class="nav-link">Leaderboard</a>
+            
+            <?php if (isLoggedIn()): ?>
+                <a href="<?= BASE_URL ?>/profile" class="nav-link">Profile</a>
+                <a href="<?= BASE_URL ?>/logout" class="nav-link" style="color: #ff5d5d;">Logout</a>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>/login" class="nav-link">Login</a>
+                <a href="<?= BASE_URL ?>/register" class="nav-cta">Register Free</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</nav>
 
     <div class="container" style="max-width: 600px; padding: 2rem;">
         <h2 style="color: var(--text-light); margin-bottom: 2rem;">Create New Room</h2>
@@ -36,7 +67,7 @@
         <?php endif; ?>
 
         <div style="background: var(--glass-bg); padding: 2rem; border-radius: 1rem; border: 1px solid var(--glass-border);">
-            <form method="POST" action="/worldcupprediction-big/rooms/create">
+            <form method="POST" action="<?= BASE_URL ?>/rooms/create">
                 <div class="form-group">
                     <label class="form-label">Room Name</label>
                     <input type="text" name="name" class="form-input" required placeholder="Enter room name">
@@ -76,11 +107,11 @@
             </form>
 
             <div style="text-align: center; margin-top: 1rem;">
-                <a href="/worldcupprediction-big/rooms/join" style="color: var(--accent-color);">Join existing room</a>
+                <a href="<?= BASE_URL ?>/rooms/join" style="color: var(--accent-color);">Join existing room</a>
             </div>
         </div>
     </div>
 
-    <script src="/worldcupprediction-big/public/js/main.js"></script>
+    <script src="<?= BASE_URL ?>/public/js/main.js"></script>
 </body>
 </html>

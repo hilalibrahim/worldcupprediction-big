@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo htmlspecialchars($room['name']) ?> - Room - PredictCup</title>
-    <link rel="stylesheet" href="/worldcupprediction-big/public/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/style.css">
     <style>
         :root {
             --r-gold: #ffd230;
@@ -590,24 +590,55 @@
     </style>
 </head>
 <body>
+    <!-- Global Loader -->
+    <div id="page-loader">
+        <img src="<?= BASE_URL ?>/public/uploads/logo.png" alt="Loading...">
+    </div>
     <nav class="navbar">
-        <div class="container">
-            <a href="/" class="navbar-brand"><img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;"><span>PredictCup</span></a>
-            <div class="navbar-menu">
-                <a href="/">Home</a>
-                <a href="/worldcupprediction-big/dashboard">Dashboard</a>
-                <a href="/worldcupprediction-big/daily-matches">Matches</a>
-                <a href="/worldcupprediction-big/leaderboard">Leaderboard</a>
-                <a href="/worldcupprediction-big/rooms" class="active">Rooms</a>
-                <?php if (isLoggedIn()): ?>
-                    <a href="/worldcupprediction-big/profile">Profile</a>
-                    <a href="/worldcupprediction-big/logout">Logout</a>
-                <?php else: ?>
-                    <a href="/worldcupprediction-big/login">Login</a>
-                <?php endif; ?>
-            </div>
+    <div class="container">
+        <!-- Logo -->
+        <a href="<?= BASE_URL ?>/" class="navbar-brand">
+            <img src="<?= BASE_URL ?>/public/uploads/logo.png" alt="World Cup Prediction 2026">
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="navbar-menu">
+            <a href="<?= BASE_URL ?>/" class="nav-link">Home</a>
+            <a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a>
+            <a href="<?= BASE_URL ?>/daily-matches" class="nav-link">Matches</a>
+            <a href="<?= BASE_URL ?>/leaderboard" class="nav-link">Leaderboard</a>
+            
+            <?php if (isLoggedIn()): ?>
+                <a href="<?= BASE_URL ?>/profile" class="nav-link">Profile</a>
+                <a href="<?= BASE_URL ?>/logout" class="nav-link" style="color: #ff5d5d;">Logout</a>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>/login" class="nav-link">Login</a>
+                <a href="<?= BASE_URL ?>/register" class="nav-cta">Register Free</a>
+            <?php endif; ?>
         </div>
-    </nav>
+
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn">
+            ☰
+        </button>
+
+        <!-- Mobile Navigation Dropdown -->
+        <div class="mobile-dropdown">
+            <a href="<?= BASE_URL ?>/" class="nav-link">Home</a>
+            <a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a>
+            <a href="<?= BASE_URL ?>/daily-matches" class="nav-link">Matches</a>
+            <a href="<?= BASE_URL ?>/leaderboard" class="nav-link">Leaderboard</a>
+            
+            <?php if (isLoggedIn()): ?>
+                <a href="<?= BASE_URL ?>/profile" class="nav-link">Profile</a>
+                <a href="<?= BASE_URL ?>/logout" class="nav-link" style="color: #ff5d5d;">Logout</a>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>/login" class="nav-link">Login</a>
+                <a href="<?= BASE_URL ?>/register" class="nav-cta">Register Free</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</nav>
 
     <?php
         $totalPredictions = array_sum(array_map(function($m) use ($roomPredictions) {
@@ -671,10 +702,10 @@
         <div class="rv-toolbar">
             <div class="rv-actions">
                 <?php if ($isOwner): ?>
-                    <a href="/worldcupprediction-big/rooms/edit/<?php echo $room['id'] ?>" class="rv-btn rv-btn-primary">✎ Edit Room</a>
-                    <a href="/worldcupprediction-big/rooms/members/<?php echo $room['id'] ?>" class="rv-btn rv-btn-ghost">⚙ Manage</a>
+                    <a href="<?= BASE_URL ?>/rooms/edit/<?php echo $room['id'] ?>" class="rv-btn rv-btn-primary">✎ Edit Room</a>
+                    <a href="<?= BASE_URL ?>/rooms/members/<?php echo $room['id'] ?>" class="rv-btn rv-btn-ghost">⚙ Manage</a>
                 <?php endif; ?>
-                <a href="/worldcupprediction-big/rooms/leave/<?php echo $room['id'] ?>" class="rv-btn rv-btn-danger">Leave Room</a>
+                <a href="<?= BASE_URL ?>/rooms/leave/<?php echo $room['id'] ?>" class="rv-btn rv-btn-danger">Leave Room</a>
             </div>
 
             <div class="rv-share">
@@ -703,29 +734,33 @@
             <h2 class="rv-panel-title">🏆 Room Leaderboard</h2>
 
             <?php if (!empty($leaderboard)): ?>
-                <?php
-                    $top3 = array_slice($leaderboard, 0, 3);
-                    $rest = array_slice($leaderboard, 3);
-                    $medals = ['🥇', '🥈', '🥉'];
-                    $classes = ['gold', 'silver', 'bronze'];
-                ?>
-                <?php if (count($top3) > 0): ?>
-                    <div class="rv-podium">
-                        <?php foreach ($top3 as $i => $user): ?>
-                            <div class="rv-podium-card <?php echo $classes[$i] ?>">
-                                <div class="rv-podium-medal"><?php echo $medals[$i] ?></div>
-                                <div class="rv-podium-avatar"><?php echo strtoupper(substr($user['username'], 0, 1)) ?></div>
-                                <div class="rv-podium-name"><?php echo htmlspecialchars($user['username']) ?></div>
-                                <div class="rv-podium-pts"><?php echo $user['total_points'] ?? 0 ?> pts</div>
-                                <div class="rv-podium-sub"><?php echo $user['correct_predictions'] ?? 0 ?> correct</div>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
+                <?php if ($currentPage == 1): ?>
+                    <?php
+                        $top3 = array_slice($leaderboard, 0, 3);
+                        $rest = array_slice($leaderboard, 3);
+                        $medals = ['🥇', '🥈', '🥉'];
+                        $classes = ['gold', 'silver', 'bronze'];
+                    ?>
+                    <?php if (count($top3) > 0): ?>
+                        <div class="rv-podium">
+                            <?php foreach ($top3 as $i => $user): ?>
+                                <div class="rv-podium-card <?php echo $classes[$i] ?>">
+                                    <div class="rv-podium-medal"><?php echo $medals[$i] ?></div>
+                                    <div class="rv-podium-avatar"><?php echo strtoupper(substr($user['username'], 0, 1)) ?></div>
+                                    <div class="rv-podium-name"><?php echo htmlspecialchars($user['username']) ?></div>
+                                    <div class="rv-podium-pts"><?php echo $user['total_points'] ?? 0 ?> pts</div>
+                                    <div class="rv-podium-sub"><?php echo $user['correct_predictions'] ?? 0 ?> correct</div>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <?php $rest = $leaderboard; ?>
                 <?php endif; ?>
 
-                <?php foreach ($rest as $i => $user): ?>
+                <?php foreach ($rest as $user): ?>
                     <div class="rv-rank-row">
-                        <div class="rv-rank-num"><?php echo $i + 4 ?></div>
+                        <div class="rv-rank-num"><?php echo $user['rank'] ?></div>
                         <div class="rv-rank-avatar"><?php echo strtoupper(substr($user['username'], 0, 1)) ?></div>
                         <div class="rv-rank-info">
                             <div class="rv-rank-name"><?php echo htmlspecialchars($user['username']) ?></div>
@@ -734,6 +769,30 @@
                         <div class="rv-rank-pts"><?php echo $user['total_points'] ?? 0 ?></div>
                     </div>
                 <?php endforeach; ?>
+                
+                <?php if (isset($totalPages) && $totalPages > 1): ?>
+                    <div style="margin-top: 2rem; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.5rem;">
+                        <div>
+                            <?php if ($currentPage > 1): ?>
+                                <a href="?page=<?= $currentPage - 1 ?>" class="rv-btn rv-btn-ghost">← Previous</a>
+                            <?php else: ?>
+                                <span class="rv-btn" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.1); cursor: not-allowed;">← Previous</span>
+                            <?php endif; ?>
+                        </div>
+                        
+                        <div style="color: rgba(255,255,255,0.5); font-size: 0.9rem;">
+                            Page <span style="color: var(--r-gold); font-weight: bold;"><?= $currentPage ?></span> of <?= $totalPages ?>
+                        </div>
+                        
+                        <div>
+                            <?php if ($currentPage < $totalPages): ?>
+                                <a href="?page=<?= $currentPage + 1 ?>" class="rv-btn rv-btn-ghost">Next →</a>
+                            <?php else: ?>
+                                <span class="rv-btn" style="background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.1); cursor: not-allowed;">Next →</span>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endif; ?>
             <?php else: ?>
                 <div class="rv-empty">
                     <div class="rv-empty-icon">📊</div>
@@ -786,7 +845,7 @@
                                 <?php endif; ?>
                             </div>
                         <?php elseif (!$isLocked): ?>
-                            <form method="POST" action="/worldcupprediction-big/predict" class="rv-form">
+                            <form method="POST" action="<?= BASE_URL ?>/predict" class="rv-form">
                                 <input type="hidden" name="match_id" value="<?php echo $match['id'] ?>">
                                 <div class="rv-form-box">
                                     <div class="rv-form-box-label">🎯 Exact Score</div>
@@ -856,7 +915,7 @@
 
     <div class="rv-copy-toast" id="copyToast">✓ Link copied to clipboard!</div>
 
-    <script src="/worldcupprediction-big/public/js/main.js"></script>
+    <script src="<?= BASE_URL ?>/public/js/main.js"></script>
     <script>
         function switchTab(tabName, btn) {
             document.querySelectorAll('.rv-panel').forEach(p => p.classList.remove('active'));

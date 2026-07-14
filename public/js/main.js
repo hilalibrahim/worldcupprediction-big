@@ -195,3 +195,30 @@ function getCsrfToken() {
     const token = document.querySelector('[name="csrf_token"]');
     return token ? token.value : '';
 }
+
+window.addEventListener('load', function() {
+    const loader = document.getElementById('page-loader');
+    if(loader) {
+        // Wait 1.5 seconds before starting the fade out
+        setTimeout(() => {
+            loader.classList.add('loader-hidden');
+            setTimeout(() => loader.remove(), 500);
+        }, 1500);
+    }
+});
+
+document.addEventListener('DOMContentLoaded', function() {
+    const mobileBtn = document.querySelector('.mobile-menu-btn');
+    const mobileMenu = document.querySelector('.mobile-dropdown');
+    if(mobileBtn && mobileMenu) {
+        mobileBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            mobileMenu.classList.toggle('show');
+        });
+        document.addEventListener('click', function(e) {
+            if(!mobileMenu.contains(e.target)) {
+                mobileMenu.classList.remove('show');
+            }
+        });
+    }
+});

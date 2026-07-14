@@ -4,9 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Reset Password - PredictCup</title>
-    <link rel="stylesheet" href="/worldcupprediction-big/public/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/style.css">
 </head>
 <body>
+    <!-- Global Loader -->
+    <div id="page-loader">
+        <img src="<?= BASE_URL ?>/public/uploads/logo.png" alt="Loading...">
+    </div>
     <div class="container" style="max-width: 400px; padding: 2rem;">
         <div style="text-align: center; margin-bottom: 2rem;">
             <h1 style="color: var(--text-light);">Set New Password</h1>
@@ -19,7 +23,7 @@
             </div>
         <?php endif; ?>
 
-        <form method="POST" action="/worldcupprediction-big/reset-password/<?php echo htmlspecialchars($token) ?>">
+        <form method="POST" action="<?= BASE_URL ?>/reset-password/<?php echo htmlspecialchars($token) ?>">
             <div class="form-group">
                 <label class="form-label">New Password</label>
                 <input type="password" name="password" class="form-input" required 
@@ -38,10 +42,10 @@
         </form>
 
         <div style="text-align: center; color: var(--text-gray);">
-            <p><a href="/worldcupprediction-big/login" style="color: var(--accent-color);">Back to Login</a></p>
+            <p><a href="<?= BASE_URL ?>/login" style="color: var(--accent-color);">Back to Login</a></p>
         </div>
     </div>
 
-    <script src="/worldcupprediction-big/public/js/main.js"></script>
+    <script src="<?= BASE_URL ?>/public/js/main.js"></script>
 </body>
 </html>

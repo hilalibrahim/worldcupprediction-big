@@ -4,24 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Users - Admin - PredictCup</title>
-    <link rel="stylesheet" href="/worldcupprediction-big/public/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/style.css">
 </head>
 <body>
+    <!-- Global Loader -->
+    <div id="page-loader">
+        <img src="<?= BASE_URL ?>/public/uploads/logo.png" alt="Loading...">
+    </div>
     <nav class="navbar">
-        <div class="container">
-            <a href="/" class="navbar-brand"><img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;"><span>PredictCup</span></a>
-            <div class="navbar-menu">
-                <a href="/">Home</a>
-                <a href="/worldcupprediction-big/admin/dashboard">Admin Dashboard</a>
-                <a href="/worldcupprediction-big/admin/users" class="active">Users</a>
-                <a href="/worldcupprediction-big/admin/teams">Teams</a>
-                <a href="/worldcupprediction-big/admin/matches">Matches</a>
-                <a href="/worldcupprediction-big/admin/rooms">Rooms</a>
-                <a href="/worldcupprediction-big/admin/api">API</a>
-                <a href="/worldcupprediction-big/admin/logout">Logout</a>
-            </div>
+    <div class="container">
+        <!-- Logo -->
+        <a href="<?= BASE_URL ?>/" class="navbar-brand">
+            <img src="<?= BASE_URL ?>/public/uploads/logo.png" alt="World Cup Prediction 2026">
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="navbar-menu">
+            <a href="<?= BASE_URL ?>/" class="nav-link">Home</a>
+            <a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a>
+            <a href="<?= BASE_URL ?>/daily-matches" class="nav-link">Matches</a>
+            <a href="<?= BASE_URL ?>/leaderboard" class="nav-link">Leaderboard</a>
+            
+            <?php if (isLoggedIn()): ?>
+                <a href="<?= BASE_URL ?>/profile" class="nav-link">Profile</a>
+                <a href="<?= BASE_URL ?>/logout" class="nav-link" style="color: #ff5d5d;">Logout</a>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>/login" class="nav-link">Login</a>
+                <a href="<?= BASE_URL ?>/register" class="nav-cta">Register Free</a>
+            <?php endif; ?>
         </div>
-    </nav>
+
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn">
+            ☰
+        </button>
+
+        <!-- Mobile Navigation Dropdown -->
+        <div class="mobile-dropdown">
+            <a href="<?= BASE_URL ?>/" class="nav-link">Home</a>
+            <a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a>
+            <a href="<?= BASE_URL ?>/daily-matches" class="nav-link">Matches</a>
+            <a href="<?= BASE_URL ?>/leaderboard" class="nav-link">Leaderboard</a>
+            
+            <?php if (isLoggedIn()): ?>
+                <a href="<?= BASE_URL ?>/profile" class="nav-link">Profile</a>
+                <a href="<?= BASE_URL ?>/logout" class="nav-link" style="color: #ff5d5d;">Logout</a>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>/login" class="nav-link">Login</a>
+                <a href="<?= BASE_URL ?>/register" class="nav-cta">Register Free</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</nav>
 
     <div class="container" style="max-width: 1200px; padding: 2rem;">
         <h2 style="color: var(--text-light); margin-bottom: 2rem;">User Management</h2>
@@ -76,7 +110,7 @@
                         </td>
                         <td>
                             <div style="display: flex; gap: 0.5rem;">
-                                <form method="POST" action="/worldcupprediction-big/admin/users" style="display: inline;">
+                                <form method="POST" action="<?= BASE_URL ?>/admin/users" style="display: inline;">
                                     <input type="hidden" name="action" value="ban">
                                     <input type="hidden" name="id" value="<?php echo $user['id'] ?>">
                                     <button type="submit" class="btn btn-secondary" style="padding: 0.25rem 0.75rem;" onclick="return confirm('Ban this user?');">
@@ -84,20 +118,20 @@
                                     </button>
                                 </form>
 
-                                <form method="POST" action="/worldcupprediction-big/admin/users" style="display: inline;">
+                                <form method="POST" action="<?= BASE_URL ?>/admin/users" style="display: inline;">
                                     <input type="hidden" name="action" value="delete">
                                     <input type="hidden" name="id" value="<?php echo $user['id'] ?>">
                                     <button type="submit" class="btn btn-secondary" style="padding: 0.25rem 0.75rem;" onclick="return confirm('Delete this user?');">Delete</button>
                                 </form>
 
                                 <?php if (!$user['is_admin']): ?>
-                                    <form method="POST" action="/worldcupprediction-big/admin/users" style="display: inline;">
+                                    <form method="POST" action="<?= BASE_URL ?>/admin/users" style="display: inline;">
                                         <input type="hidden" name="action" value="make_admin">
                                         <input type="hidden" name="id" value="<?php echo $user['id'] ?>">
                                         <button type="submit" class="btn btn-secondary" style="padding: 0.25rem 0.75rem;" onclick="return confirm('Make this user admin?');">Admin</button>
                                     </form>
                                 <?php else: ?>
-                                    <form method="POST" action="/worldcupprediction-big/admin/users" style="display: inline;">
+                                    <form method="POST" action="<?= BASE_URL ?>/admin/users" style="display: inline;">
                                         <input type="hidden" name="action" value="remove_admin">
                                         <input type="hidden" name="id" value="<?php echo $user['id'] ?>">
                                         <button type="submit" class="btn btn-secondary" style="padding: 0.25rem 0.75rem;" onclick="return confirm('Remove admin privileges?');">Remove Admin</button>
@@ -111,6 +145,6 @@
         </table>
     </div>
 
-    <script src="/worldcupprediction-big/public/js/main.js"></script>
+    <script src="<?= BASE_URL ?>/public/js/main.js"></script>
 </body>
 </html>

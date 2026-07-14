@@ -58,11 +58,44 @@ class AdminController {
         
         $db = Database::getInstance();
         
+        if (isPostRequest()) {
+            $action = sanitize($_POST['action'] ?? '');
+            if ($action === 'draw_contest_winner') {
+                $maxPointsQuery = $db->single("SELECT MAX(points) as max_points FROM users WHERE is_active = 1 AND is_admin = 0");
+                $maxPoints = (int)($maxPointsQuery['max_points'] ?? 0);
+                
+                if ($maxPoints > 0) {
+                    $topUsers = $db->resultSet("SELECT * FROM users WHERE points = ? AND is_active = 1 AND is_admin = 0", [$maxPoints]);
+                    if (!empty($topUsers)) {
+                        $winner = $topUsers[array_rand($topUsers)];
+                        setFlashMessage('success', '🏆 Contest Winner drawn (Total Score: ' . $maxPoints . ')! The overall winner is: ' . $winner['username'] . ' (' . $winner['email'] . ')');
+                    } else {
+                        setFlashMessage('error', 'No top users found.');
+                    }
+                } else {
+                    setFlashMessage('error', 'No points have been scored in the contest yet.');
+                }
+                redirect(BASE_URL . '/admin/dashboard');
+            }
+        }
+        
         $totalUsers = $db->single('SELECT COUNT(*) as count FROM users WHERE is_active = 1');
         $totalRooms = $db->single('SELECT COUNT(*) as count FROM rooms');
         $totalPredictions = $db->single('SELECT COUNT(*) as count FROM predictions');
         $totalMatches = $db->single('SELECT COUNT(*) as count FROM matches');
         $matchesPlayed = $db->single('SELECT COUNT(*) as count FROM matches WHERE status = "completed"');
+        
+        require_once __DIR__ . '/../models/Prediction.php';
+        $predictionModel = new Prediction();
+        
+        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($currentPage < 1) $currentPage = 1;
+        
+        $limit = 20;
+        $paginatedData = $predictionModel->getAllPredictionsPaginated($currentPage, $limit);
+        
+        $allPredictions = $paginatedData['predictions'];
+        $totalPages = $paginatedData['total_pages'];
         
         include_once __DIR__ . '/../views/admin/dashboard.php';
     }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>API Management - PredictCup Admin</title>
-    <link rel="stylesheet" href="/worldcupprediction-big/public/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/style.css">
     <style>
         .api-status-card {
             background: var(--glass-bg);
@@ -50,20 +50,55 @@
     </style>
 </head>
 <body>
+    <!-- Global Loader -->
+    <div id="page-loader">
+        <img src="<?= BASE_URL ?>/public/uploads/logo.png" alt="Loading...">
+    </div>
     <nav class="navbar">
-        <div class="container">
-            <a href="/worldcupprediction-big/" class="navbar-brand"><img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;"><span>PredictCup</span></a>
-            <div class="navbar-menu">
-                <a href="/worldcupprediction-big/admin/dashboard">Dashboard</a>
-                <a href="/worldcupprediction-big/admin/teams">Teams</a>
-                <a href="/worldcupprediction-big/admin/matches">Matches</a>
-                <a href="/worldcupprediction-big/admin/users">Users</a>
-                <a href="/worldcupprediction-big/admin/rooms">Rooms</a>
-                <a href="/worldcupprediction-big/admin/api" class="active">API</a>
-                <a href="/worldcupprediction-big/admin/logout">Logout</a>
-            </div>
+    <div class="container">
+        <!-- Logo -->
+        <a href="<?= BASE_URL ?>/" class="navbar-brand">
+            <img src="<?= BASE_URL ?>/public/uploads/logo.png" alt="World Cup Prediction 2026">
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="navbar-menu">
+            <a href="<?= BASE_URL ?>/" class="nav-link">Home</a>
+            <a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a>
+            <a href="<?= BASE_URL ?>/daily-matches" class="nav-link">Matches</a>
+            <a href="<?= BASE_URL ?>/leaderboard" class="nav-link">Leaderboard</a>
+            
+            <?php if (isLoggedIn()): ?>
+                <a href="<?= BASE_URL ?>/profile" class="nav-link">Profile</a>
+                <a href="<?= BASE_URL ?>/logout" class="nav-link" style="color: #ff5d5d;">Logout</a>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>/login" class="nav-link">Login</a>
+                <a href="<?= BASE_URL ?>/register" class="nav-cta">Register Free</a>
+            <?php endif; ?>
         </div>
-    </nav>
+
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn">
+            ☰
+        </button>
+
+        <!-- Mobile Navigation Dropdown -->
+        <div class="mobile-dropdown">
+            <a href="<?= BASE_URL ?>/" class="nav-link">Home</a>
+            <a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a>
+            <a href="<?= BASE_URL ?>/daily-matches" class="nav-link">Matches</a>
+            <a href="<?= BASE_URL ?>/leaderboard" class="nav-link">Leaderboard</a>
+            
+            <?php if (isLoggedIn()): ?>
+                <a href="<?= BASE_URL ?>/profile" class="nav-link">Profile</a>
+                <a href="<?= BASE_URL ?>/logout" class="nav-link" style="color: #ff5d5d;">Logout</a>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>/login" class="nav-link">Login</a>
+                <a href="<?= BASE_URL ?>/register" class="nav-cta">Register Free</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</nav>
 
     <div class="container" style="padding: 2rem;">
         <h1 style="color: var(--text-light); margin-bottom: 2rem;">Football-Data.org API Management</h1>
@@ -219,7 +254,7 @@ php C:\xampp\htdocs\worldcupprediction-big\cron-update-matches.php</pre>
         </div>
         
         <div style="margin-top: 2rem;">
-            <a href="/worldcupprediction-big/admin/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
+            <a href="<?= BASE_URL ?>/admin/dashboard" class="btn btn-secondary">← Back to Dashboard</a>
         </div>
     </div>
 </body>

@@ -55,10 +55,10 @@ class MatchModel {
     public function enterResults($id, $homeScore, $awayScore) {
         $match = $this->getMatchById($id);
         if (!$match) return ['success' => false, 'message' => 'Match not found'];
-        if ($match['status'] === 'completed') return ['success' => false, 'message' => 'Match results already entered'];
         $result = $this->db->update($this->table, ['home_score' => $homeScore, 'away_score' => $awayScore, 'status' => 'completed', 'is_locked' => 1, 'updated_at' => date('Y-m-d H:i:s')], 'id = ' . (int)$id);
         if (!$result) return ['success' => false, 'message' => 'Failed to enter results'];
         $this->calculatePoints($id);
+        $this->checkAndCreateFinal();
         return ['success' => true];
     }
 
@@ -67,44 +67,46 @@ class MatchModel {
         $match = $this->getMatchById($matchId);
         if (!$match || $match['status'] !== 'completed') return false;
 
-        $actualWinner = getWinner($match['home_score'], $match['away_score']);
-        $predictions = $db->resultSet('SELECT * FROM predictions WHERE match_id = ?', [$matchId]);
+        $actHome = (int)$match['home_score'];
+        $actAway = (int)$match['away_score'];
+        $actualWinner = getWinner($actHome, $actAway);
 
-        foreach ($predictions as $prediction) {
-            $points = calculatePoints($prediction, $match);
+        // 1. Bulk update all predictions for this match (O(1) execution)
+        $sql = "UPDATE predictions SET
+            is_exact_score = IF(home_score = :actHome AND away_score = :actAway, 1, 0),
+            is_correct_winner = IF(predicted_winner = :actualWinner, 1, 0),
+            is_correct_diff = IF((home_score - away_score) = (:actHome - :actAway), 1, 0),
+            points = IF(home_score = :actHome AND away_score = :actAway, :pointsExact, 0) + 
+                     IF(predicted_winner = :actualWinner, :pointsWinner, 0)
+            WHERE match_id = :matchId";
+            
+        $db->query($sql, [
+            ':actHome' => $actHome,
+            ':actAway' => $actAway,
+            ':actualWinner' => $actualWinner,
+            ':pointsExact' => POINTS_EXACT_SCORE,
+            ':pointsWinner' => POINTS_CORRECT_WINNER,
+            ':matchId' => $matchId
+        ]);
 
-            // Determine the predicted winner: use the explicit field for 'both'/'winner'
-            // predictions, otherwise derive it from the predicted score.
-            $predictedWinner = !empty($prediction['predicted_winner'])
-                ? $prediction['predicted_winner']
-                : getWinner($prediction['home_score'], $prediction['away_score']);
-
-            $predHome = (int)$prediction['home_score'];
-            $predAway = (int)$prediction['away_score'];
-            $actHome = (int)$match['home_score'];
-            $actAway = (int)$match['away_score'];
-
-            $isCorrectWinner = ($predictedWinner === $actualWinner) ? 1 : 0;
-            $isCorrectDiff = (($predHome - $predAway) === ($actHome - $actAway)) ? 1 : 0;
-            $isExactScore = (($predHome === $actHome) && ($predAway === $actAway)) ? 1 : 0;
-
-            $db->update('predictions', [
-                'points' => $points,
-                'is_correct_winner' => $isCorrectWinner,
-                'is_correct_diff' => $isCorrectDiff,
-                'is_exact_score' => $isExactScore
-            ], 'id = ' . (int)$prediction['id']);
-        }
-
-        // Recalculate each affected user's total points from their predictions.
+        // 2. Bulk recalculate total points for all users who predicted this match
         $this->updateRoomLeaderboards($matchId);
         return true;
     }
 
     public function updateRoomLeaderboards($matchId) {
         $db = Database::getInstance();
-        $predictions = $db->resultSet('SELECT DISTINCT user_id FROM predictions WHERE match_id = ?', [$matchId]);
-        foreach ($predictions as $prediction) $this->recalculateUserPoints($prediction['user_id']);
+        
+        // Single bulk query to update all affected users (Avoids N+1 query problem)
+        $sql = "UPDATE users u
+                SET u.points = (
+                    SELECT COALESCE(SUM(points), 0) 
+                    FROM predictions 
+                    WHERE user_id = u.id
+                )
+                WHERE u.id IN (SELECT DISTINCT user_id FROM predictions WHERE match_id = :matchId)";
+                
+        $db->query($sql, [':matchId' => $matchId]);
     }
 
     public function recalculateUserPoints($userId) {
@@ -336,5 +338,42 @@ class MatchModel {
         }
         
         return $this->fetchMatchesFromAPI();
+    }
+
+    /**
+     * Check if both semi-finals are completed and auto-create the Final match if not exists
+     */
+    public function checkAndCreateFinal() {
+        $semis = $this->db->resultSet("SELECT * FROM {$this->table} WHERE stage IN ('Semi-Final', 'Semi-Finals') AND status = 'completed'");
+        
+        // Ensure both semi-finals are completed
+        if (count($semis) >= 2) {
+            // Check if final already exists
+            $finalMatch = $this->db->single("SELECT id FROM {$this->table} WHERE stage = 'Final'");
+            if (!$finalMatch) {
+                // Determine the winner of semi 1
+                $semi1 = $semis[0];
+                $winner1 = getWinner($semi1['home_score'], $semi1['away_score']);
+                $team1Id = ($winner1 === 'home') ? $semi1['home_team_id'] : $semi1['away_team_id'];
+                
+                // Determine the winner of semi 2
+                $semi2 = $semis[1];
+                $winner2 = getWinner($semi2['home_score'], $semi2['away_score']);
+                $team2Id = ($winner2 === 'home') ? $semi2['home_team_id'] : $semi2['away_team_id'];
+                
+                // For a draw in semi-finals, we just fallback to home team for demo simplicity since we don't have penalty tracking
+                if ($winner1 === 'draw') $team1Id = $semi1['home_team_id'];
+                if ($winner2 === 'draw') $team2Id = $semi2['home_team_id'];
+                
+                // Create Final
+                $this->addMatch([
+                    'home_team_id' => $team1Id,
+                    'away_team_id' => $team2Id,
+                    'match_date' => '2026-07-19 19:00:00', // UTC for Mon, 20 Jul, 12:30 am IST
+                    'stadium' => 'MetLife Stadium',
+                    'stage' => 'Final'
+                ]);
+            }
+        }
     }
 }

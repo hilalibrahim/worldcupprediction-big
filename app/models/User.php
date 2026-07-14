@@ -213,7 +213,7 @@ class User {
         if (!$user) return 0;
         
         $rank = $this->db->single(
-            'SELECT COUNT(*) as count FROM users WHERE points > ?', [$user['points']]
+            'SELECT COUNT(*) as count FROM users WHERE points > ? AND is_admin = 0', [$user['points']]
         );
         return (int)$rank['count'] + 1;
     }
@@ -221,7 +221,27 @@ class User {
     public function getTopPredictors($limit = 10) {
         return $this->db->resultSet("
             SELECT id, username, country, points, profile_picture
-            FROM users WHERE is_active = 1
+            FROM users WHERE is_active = 1 AND is_admin = 0
             ORDER BY points DESC LIMIT ?", [$limit]);
+    }
+    
+    public function getTopPredictorsPaginated($page = 1, $limit = 20) {
+        $offset = ($page - 1) * $limit;
+        
+        $sql = "SELECT id, username, country, points, profile_picture
+                FROM users WHERE is_active = 1 AND is_admin = 0
+                ORDER BY points DESC, join_date ASC
+                LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+                
+        $predictors = $this->db->resultSet($sql);
+        
+        $countResult = $this->db->single("SELECT COUNT(*) as total FROM users WHERE is_active = 1 AND is_admin = 0");
+        $total = $countResult['total'] ?? 0;
+        
+        return [
+            'predictors' => $predictors,
+            'total' => $total,
+            'total_pages' => ceil($total / $limit)
+        ];
     }
 }

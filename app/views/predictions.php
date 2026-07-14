@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Predictions - PredictCup</title>
-    <link rel="stylesheet" href="/worldcupprediction-big/public/css/style.css">
+    <link rel="stylesheet" href="<?= BASE_URL ?>/public/css/style.css">
     <style>
         .prediction-card {
             background: var(--glass-bg);
@@ -235,21 +235,55 @@
     </style>
 </head>
 <body>
+    <!-- Global Loader -->
+    <div id="page-loader">
+        <img src="<?= BASE_URL ?>/public/uploads/logo.png" alt="Loading...">
+    </div>
     <nav class="navbar">
-        <div class="container">
-            <a href="/" class="navbar-brand"><img src="/worldcupprediction-big/public/uploads/logo.png" alt="PredictCup Logo" style="height: 40px; margin-right: 10px;"><span>PredictCup</span></a>
-            <div class="navbar-menu">
-                <a href="/">Home</a>
-                <a href="/worldcupprediction-big/dashboard">Dashboard</a>
-                <a href="/worldcupprediction-big/daily-matches">Matches</a>
-                <a href="/worldcupprediction-big/predictions" class="active">My Predictions</a>
-                <a href="/worldcupprediction-big/leaderboard">Leaderboard</a>
-                <a href="/worldcupprediction-big/rooms">Rooms</a>
-                <a href="/worldcupprediction-big/profile">Profile</a>
-                <a href="/worldcupprediction-big/logout">Logout</a>
-            </div>
+    <div class="container">
+        <!-- Logo -->
+        <a href="<?= BASE_URL ?>/" class="navbar-brand">
+            <img src="<?= BASE_URL ?>/public/uploads/logo.png" alt="World Cup Prediction 2026">
+        </a>
+
+        <!-- Desktop Navigation -->
+        <div class="navbar-menu">
+            <a href="<?= BASE_URL ?>/" class="nav-link">Home</a>
+            <a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a>
+            <a href="<?= BASE_URL ?>/daily-matches" class="nav-link">Matches</a>
+            <a href="<?= BASE_URL ?>/leaderboard" class="nav-link">Leaderboard</a>
+            
+            <?php if (isLoggedIn()): ?>
+                <a href="<?= BASE_URL ?>/profile" class="nav-link">Profile</a>
+                <a href="<?= BASE_URL ?>/logout" class="nav-link" style="color: #ff5d5d;">Logout</a>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>/login" class="nav-link">Login</a>
+                <a href="<?= BASE_URL ?>/register" class="nav-cta">Register Free</a>
+            <?php endif; ?>
         </div>
-    </nav>
+
+        <!-- Mobile Menu Button -->
+        <button class="mobile-menu-btn">
+            ☰
+        </button>
+
+        <!-- Mobile Navigation Dropdown -->
+        <div class="mobile-dropdown">
+            <a href="<?= BASE_URL ?>/" class="nav-link">Home</a>
+            <a href="<?= BASE_URL ?>/dashboard" class="nav-link">Dashboard</a>
+            <a href="<?= BASE_URL ?>/daily-matches" class="nav-link">Matches</a>
+            <a href="<?= BASE_URL ?>/leaderboard" class="nav-link">Leaderboard</a>
+            
+            <?php if (isLoggedIn()): ?>
+                <a href="<?= BASE_URL ?>/profile" class="nav-link">Profile</a>
+                <a href="<?= BASE_URL ?>/logout" class="nav-link" style="color: #ff5d5d;">Logout</a>
+            <?php else: ?>
+                <a href="<?= BASE_URL ?>/login" class="nav-link">Login</a>
+                <a href="<?= BASE_URL ?>/register" class="nav-cta">Register Free</a>
+            <?php endif; ?>
+        </div>
+    </div>
+</nav>
 
     <div class="container" style="max-width: 1000px; padding: 2rem;">
         <div style="margin-bottom: 3rem;">
@@ -267,10 +301,7 @@
                 <div class="stat-value"><?php echo $stats['count'] ?? 0; ?></div>
                 <div class="stat-label">Correct Predictions</div>
             </div>
-            <div class="stat-card">
-                <div class="stat-value"><?php echo $accuracy; ?>%</div>
-                <div class="stat-label">Accuracy</div>
-            </div>
+
             <div class="stat-card">
                 <div class="stat-value"><?php echo $stats['total_points'] ?? 0; ?></div>
                 <div class="stat-label">Total Points</div>
@@ -295,7 +326,7 @@
                     </svg>
                     <h3 style="color: var(--text-light);">No Predictions Yet</h3>
                     <p>Start making predictions to see them here!</p>
-                    <a href="/worldcupprediction-big/daily-matches" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">View Matches</a>
+                    <a href="<?= BASE_URL ?>/daily-matches" class="btn btn-primary" style="display: inline-block; margin-top: 1rem;">View Matches</a>
                 </div>
             <?php else: ?>
                 <?php foreach ($predictions as $pred): ?>

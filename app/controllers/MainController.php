@@ -68,8 +68,16 @@ class MainController {
         }
         
         $predictions = [];
+        $totalPages = 1;
+        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        
         if ($match['status'] === 'completed') {
-            $predictions = $this->predictionModel->getMatchPredictions($id, 20);
+            if ($currentPage < 1) $currentPage = 1;
+            $limit = 20;
+            
+            $paginatedData = $this->predictionModel->getMatchPredictionsPaginated($id, $currentPage, $limit);
+            $predictions = $paginatedData['predictions'];
+            $totalPages = $paginatedData['total_pages'];
         }
         
         $myPrediction = null;
@@ -90,7 +98,7 @@ class MainController {
             $matchId = (int)$_POST['match_id'];
             $homeScore = (int)($_POST['home_score'] ?? 0);
             $awayScore = (int)($_POST['away_score'] ?? 0);
-            $predictedWinner = sanitize($_POST['predicted_winner'] ?? 'draw');
+            $predictedWinner = getWinner($homeScore, $awayScore);
             
             // Both types of predictions together
             $data = [
@@ -117,41 +125,19 @@ class MainController {
     }
     
     public function leaderboard() {
-        $period = sanitize($_GET['period'] ?? 'overall');
-        $periods = ['overall', 'weekly', 'monthly'];
-        if (!in_array($period, $periods)) {
-            $period = 'overall';
-        }
+        $period = 'overall';
         
-        $leaderboard = [];
+        $currentPage = isset($_GET['page']) ? (int)$_GET['page'] : 1;
+        if ($currentPage < 1) $currentPage = 1;
+        $limit = 20;
         
-        if ($period === 'overall') {
-            $leaderboard = $this->userModel->getTopPredictors(100);
-        } else {
-            $db = Database::getInstance();
-            $leaderboard = $db->resultSet("
-                SELECT u.id, u.username, u.country, u.points, u.profile_picture,
-                       COUNT(p.id) as predictions,
-                       SUM(p.points) as total_points,
-                       AVG(p.points) as avg_points,
-                       SUM(CASE WHEN p.points > 0 THEN 1 ELSE 0 END) as correct_predictions
-                FROM users u
-                LEFT JOIN predictions p ON u.id = p.user_id
-                WHERE p.created_at >= DATE_SUB(NOW(), INTERVAL 1 MONTH)
-                GROUP BY u.id
-                ORDER BY total_points DESC
-                LIMIT 100
-            ");
-        }
+        $paginatedData = $this->userModel->getTopPredictorsPaginated($currentPage, $limit);
+        $leaderboard = $paginatedData['predictors'];
+        $totalPages = $paginatedData['total_pages'];
         
-        $rank = 1;
+        $rank = ($currentPage - 1) * $limit + 1;
         foreach ($leaderboard as &$user) {
             $user['rank'] = $rank++;
-            $predictions = (int)($user['predictions'] ?? 0);
-            $correct = (int)($user['correct_predictions'] ?? 0);
-            $user['accuracy'] = $predictions > 0 
-                ? round(($correct / $predictions) * 100, 2) 
-                : 0;
         }
         
         include_once __DIR__ . '/../views/leaderboard.php';
@@ -170,7 +156,6 @@ class MainController {
         $user = $this->userModel->getUserById($userId);
         $predictions = $this->predictionModel->getUserPredictions($userId);
         $stats = $this->predictionModel->getUserCorrectPredictions($userId);
-        $accuracy = $this->predictionModel->getUserPredictionAccuracy($userId);
 
         // Add match results to predictions
         foreach ($predictions as &$pred) {

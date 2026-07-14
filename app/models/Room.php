@@ -204,7 +204,7 @@ class Room {
                    (SELECT COUNT(*) FROM predictions p WHERE p.user_id = u.id AND p.points > 0) as correct_predictions
             FROM room_members rm
             JOIN users u ON rm.user_id = u.id
-            WHERE rm.room_id = ?
+            WHERE rm.room_id = ? AND u.is_admin = 0
             ORDER BY u.points DESC
         ", [(int)$roomId]);
     }
@@ -248,10 +248,45 @@ class Room {
             FROM users u
             JOIN room_members rm ON u.id = rm.user_id
             LEFT JOIN predictions p ON u.id = p.user_id
-            WHERE rm.room_id = ? {$dateCondition}
+            WHERE rm.room_id = ? AND u.is_admin = 0 {$dateCondition}
             GROUP BY u.id
             ORDER BY total_points DESC
         ", [(int)$roomId]);
+    }
+    
+    public function getRoomLeaderboardPaginated($roomId, $page = 1, $limit = 20, $period = 'overall') {
+        $offset = ($page - 1) * $limit;
+        $dateCondition = '';
+        
+        if ($period === 'weekly') {
+            $dateCondition = 'AND p.created_at >= DATE_SUB(NOW(), INTERVAL 7 DAY)';
+        } elseif ($period === 'monthly') {
+            $dateCondition = 'AND p.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)';
+        }
+        
+        $sql = "SELECT u.id, u.username, u.country, u.profile_picture,
+                       COUNT(p.id) as predictions,
+                       SUM(p.points) as total_points,
+                       AVG(p.points) as avg_points,
+                       SUM(CASE WHEN p.points > 0 THEN 1 ELSE 0 END) as correct_predictions
+                FROM users u
+                JOIN room_members rm ON u.id = rm.user_id
+                LEFT JOIN predictions p ON u.id = p.user_id
+                WHERE rm.room_id = ? AND u.is_admin = 0 {$dateCondition}
+                GROUP BY u.id
+                ORDER BY total_points DESC
+                LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+                
+        $leaderboard = $this->db->resultSet($sql, [(int)$roomId]);
+        
+        $countResult = $this->db->single("SELECT COUNT(u.id) as total FROM users u JOIN room_members rm ON u.id = rm.user_id WHERE rm.room_id = ? AND u.is_admin = 0", [(int)$roomId]);
+        $total = $countResult['total'] ?? 0;
+        
+        return [
+            'leaderboard' => $leaderboard,
+            'total' => $total,
+            'total_pages' => ceil($total / $limit)
+        ];
     }
     
     public function getUserRoomPredictions($userId, $roomId) {

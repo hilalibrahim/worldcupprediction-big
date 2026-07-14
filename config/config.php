@@ -8,14 +8,16 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
 // Base URL
-define('BASE_URL', 'http://localhost/worldcupprediction-big');
+$protocol = isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https://' : 'http://';
+$host = $_SERVER['HTTP_HOST'] ?? 'localhost:3000';
+define('BASE_URL', $protocol . $host);
 define('APP_NAME', 'PredictCup');
 
 // Database configuration
-define('DB_HOST', 'localhost');
+define('DB_HOST', '127.0.0.1');
 define('DB_NAME', 'predictcup_db');
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', 'Cl+fwmRGQ1f7');
 define('DB_CHARSET', 'utf8mb4');
 
 // Session configuration
@@ -32,7 +34,7 @@ define('DEFAULT_TIMEZONE', 'Asia/Kolkata');
 date_default_timezone_set(DEFAULT_TIMEZONE);
 
 // Prediction cutoff time
-define('PREDICTION_CUTOFF_MINUTES', 5); // Users can predict until 5 minutes before match start
+define('PREDICTION_CUTOFF_MINUTES', 0); // Users can predict until exactly match start
 
 // Pagination
 define('ITEMS_PER_PAGE', 20);

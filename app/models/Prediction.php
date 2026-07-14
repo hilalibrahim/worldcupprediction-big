@@ -157,7 +157,7 @@ class Prediction {
             SELECT p.*, u.username, u.country
             FROM predictions p
             JOIN users u ON p.user_id = u.id
-            WHERE p.match_id = ?
+            WHERE p.match_id = ? AND u.is_admin = 0
             ORDER BY p.points DESC
         ";
         
@@ -166,6 +166,29 @@ class Prediction {
         }
         
         return $this->db->resultSet($sql, [(int)$matchId]);
+    }
+    
+    public function getMatchPredictionsPaginated($matchId, $page = 1, $limit = 20) {
+        $offset = ($page - 1) * $limit;
+        
+        $sql = "
+            SELECT p.*, u.username, u.country
+            FROM predictions p
+            JOIN users u ON p.user_id = u.id
+            WHERE p.match_id = ? AND u.is_admin = 0
+            ORDER BY p.points DESC, p.created_at ASC
+            LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+            
+        $predictions = $this->db->resultSet($sql, [(int)$matchId]);
+        
+        $countResult = $this->db->single("SELECT COUNT(p.id) as total FROM predictions p JOIN users u ON p.user_id = u.id WHERE p.match_id = ? AND u.is_admin = 0", [(int)$matchId]);
+        $total = $countResult['total'] ?? 0;
+        
+        return [
+            'predictions' => $predictions,
+            'total' => $total,
+            'total_pages' => ceil($total / $limit)
+        ];
     }
     
     public function getUserPredictions($userId) {
@@ -191,27 +214,41 @@ class Prediction {
         ", [(int)$userId]);
     }
     
-    public function getUserPredictionAccuracy($userId) {
-        $stats = $this->db->single("
-            SELECT COUNT(*) as total, SUM(CASE WHEN points > 0 THEN 1 ELSE 0 END) as correct
-            FROM predictions 
-            WHERE user_id = ?
-        ", [(int)$userId]);
-        
-        if (!$stats || $stats['total'] == 0) {
-            return 0;
-        }
-        
-        return round(($stats['correct'] / $stats['total']) * 100, 2);
-    }
-    
+
     public function getMatchLeaderboard($matchId) {
         return $this->db->resultSet("
             SELECT p.*, u.username, u.country, u.points as user_points
             FROM predictions p
             JOIN users u ON p.user_id = u.id
-            WHERE p.match_id = ?
+            WHERE p.match_id = ? AND u.is_admin = 0
             ORDER BY p.points DESC, p.created_at ASC
         ", [(int)$matchId]);
+    }
+    
+    public function getAllPredictionsPaginated($page = 1, $limit = 20) {
+        $offset = ($page - 1) * $limit;
+        
+        $sql = "
+            SELECT p.*, u.username, u.country,
+                   m.match_date, m.status as match_status, m.home_score as act_home, m.away_score as act_away,
+                   h.name as home_team_name, a.name as away_team_name
+            FROM predictions p
+            JOIN users u ON p.user_id = u.id
+            JOIN matches m ON p.match_id = m.id
+            JOIN teams h ON m.home_team_id = h.id
+            JOIN teams a ON m.away_team_id = a.id
+            ORDER BY p.created_at DESC
+            LIMIT " . (int)$limit . " OFFSET " . (int)$offset;
+            
+        $predictions = $this->db->resultSet($sql);
+        
+        $countResult = $this->db->single("SELECT COUNT(*) as total FROM predictions");
+        $total = $countResult['total'] ?? 0;
+        
+        return [
+            'predictions' => $predictions,
+            'total' => $total,
+            'total_pages' => ceil($total / $limit)
+        ];
     }
 }

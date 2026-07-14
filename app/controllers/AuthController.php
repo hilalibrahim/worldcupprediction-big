@@ -139,6 +139,13 @@ class AuthController {
         $user = $this->userModel->getUserById($userId);
         $stats = $this->userModel->getStats($userId);
         
+        $globalRank = $this->userModel->getGlobalRank($userId);
+        
+        // Fetch recent predictions
+        require_once __DIR__ . '/../models/Prediction.php';
+        $predictionModel = new Prediction();
+        $recentPredictions = array_slice($predictionModel->getUserPredictions($userId), 0, 5);
+        
         if (isPostRequest()) {
             $data = [
                 'username' => sanitize($_POST['username'] ?? ''),

@@ -16,8 +16,8 @@ class ApiController {
         $this->userModel = new User();
     }
     
-    public function handleRequest() {
-        $action = sanitize($_GET['action'] ?? '');
+    public function handleRequest($action = null) {
+        $action = sanitize($action ?: ($_GET['action'] ?? ''));
         
         switch ($action) {
             case 'today-matches':
@@ -133,9 +133,6 @@ class ApiController {
         $rank = 1;
         foreach ($leaderboard as &$user) {
             $user['rank'] = $rank++;
-            $user['accuracy'] = $user['predictions'] > 0 
-                ? round(($user['correct_predictions'] / $user['predictions']) * 100, 2) 
-                : 0;
         }
         
         echo json_encode($leaderboard);
